@@ -17,10 +17,10 @@ BASE_URL = "http://api.openweathermap.org/data/2.5/forecast"
 
 model = joblib.load("fertilizer_models.pkl")
 
-st.set_page_config(page_title="🌏Smart Soil Analysis System", layout="wide")
+st.set_page_config(page_title="🌏GreenGrow AI ", layout="wide")
 
 
-st.title("✨Smart Soil Analysis System")
+st.title("✨GreenGrow AI - Smart Soil Analysis System")
 st.write("🚨Real-time soil analysis and fertilizer recommendations")
 
 st.sidebar.title("🔑 API Configuration")
