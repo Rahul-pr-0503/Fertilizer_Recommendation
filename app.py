@@ -11,17 +11,36 @@ from plotly.subplots import make_subplots
 import requests
 import json
 
-
 BASE_URL = "http://api.openweathermap.org/data/2.5/forecast"
-
 
 model = joblib.load("fertilizer_models.pkl")
 
 st.set_page_config(page_title="🌏GreenGrow AI ", layout="wide")
 
-
 st.title("✨GreenGrow AI - Smart Soil Analysis System")
 st.write("🚨Real-time soil analysis and fertilizer recommendations")
+
+# ---------------------- 🌐 IoT Data Integration ----------------------
+def get_iot_data():
+    """Fetch latest IoT sensor readings from ThingSpeak"""
+    url = "https://api.thingspeak.com/channels/3138119/feeds.json?api_key=P6SCVY4THF4V7ZKC&results=1"
+    try:
+        response = requests.get(url, timeout=5)
+        data = response.json()['feeds'][0]
+        readings = {
+            "pH": float(data['field1']),
+            "nitrogen": float(data['field2']),
+            "phosphorus": float(data['field3']),
+            "potassium": float(data['field4']),
+            "moisture": float(data['field5']),
+            "temperature": float(data['field6']),
+            "humidity": float(data['field7']),
+        }
+        return readings
+    except Exception as e:
+        st.error(f"⚠️ Error fetching IoT data: {e}")
+        return None
+# --------------------------------------------------------------------
 
 st.sidebar.title("🔑 API Configuration")
 api_key = st.sidebar.text_input("OpenWeatherMap API Key", type="password", 
@@ -40,7 +59,6 @@ if not api_key:
     6. Find your API key under "My API Keys"
     """)
     st.stop()
-
 
 if st.sidebar.button("Test API Connection"):
     with st.sidebar:
@@ -68,7 +86,6 @@ if st.sidebar.button("Test API Connection"):
                         st.error(f"❌ Error: {data.get('message', 'Unknown error')}")
             except Exception as e:
                 st.error(f"❌ Connection error: {str(e)}")
-
 
 def get_real_weather_data(latitude, longitude):
     try:
@@ -357,6 +374,8 @@ def generate_historical_data(crop_type):
         'Labor_Cost': [random.uniform(500, 2000) for _ in range(12)]
     }
     return pd.DataFrame(data)
+st.sidebar.title("📡 Input Mode")
+input_mode = st.sidebar.radio("Select Input Source:", ["Manual", "IoT Sensor"])
 
 st.sidebar.title("🌱 Crop Selection")
 selected_crop = st.sidebar.selectbox("Select Crop Type", list(CROPS.keys()))
@@ -382,134 +401,163 @@ st.sidebar.markdown(f"""
 tab1, tab2, tab3 = st.tabs(["Soil Analysis", "Weather Forecast", "Historical Data"])
 
 with tab1:
+    readings = None  # ✅ ensure readings exists before use
+    
     col1, col2 = st.columns(2)
     with col1:
         st.subheader("📊 Enter the Soil Details")
-        with st.form("user_input_form"):
-            pH = st.number_input("Soil pH", min_value=3.0, max_value=10.0, value=6.5, step=0.1)
-            nitrogen = st.number_input("Nitrogen (ppm)", min_value=0, max_value=300, value=50, step=1)
-            phosphorus = st.number_input("Phosphorus (ppm)", min_value=0, max_value=300, value=40, step=1)
-            potassium = st.number_input("Potassium (ppm)", min_value=0, max_value=300, value=60, step=1)
-            moisture = st.number_input("Soil Moisture (%)", min_value=0.0, max_value=100.0, value=40.0, step=0.1)
-            temperature = st.number_input("Soil Temperature (°C)", min_value=0.0, max_value=50.0, value=25.0, step=0.1)
-            humidity = st.number_input("Humidity (%)", min_value=0, max_value=100, value=60, step=1)
-            organic_matter = st.number_input("Organic Matter (%)", min_value=0.0, max_value=10.0, value=2.5, step=0.1)
-            ec = st.number_input("EC (dS/m)", min_value=0.0, max_value=5.0, value=1.5, step=0.1)
-            soil_type = st.selectbox("Soil Type", ["Sandy", "Loamy", "Clayey"])
 
-            # Micronutrients
-            zinc = st.number_input("Zinc (ppm)", min_value=0.0, max_value=5.0, value=1.0, step=0.1)
-            iron = st.number_input("Iron (ppm)", min_value=0.0, max_value=20.0, value=5.0, step=0.1)
-            manganese = st.number_input("Manganese (ppm)", min_value=0.0, max_value=10.0, value=3.0, step=0.1)
-            copper = st.number_input("Copper (ppm)", min_value=0.0, max_value=2.0, value=0.5, step=0.1)
-            boron = st.number_input("Boron (ppm)", min_value=0.0, max_value=2.0, value=0.5, step=0.1)
+        # ----------- IoT Mode Integration ------------
+        if input_mode == "IoT Sensor":
+            st.info("📡 Fetching live data from IoT sensors via ThingSpeak...")
+            readings = get_iot_data()
+            if readings:
+                st.success("✅ Live IoT data received successfully!")
+                st.write(readings)
+                # Add default missing values for compatibility
+                readings["organic_matter"] = readings.get("organic_matter", 2.5)
+                readings["ec"] = readings.get("ec", 1.5)
+                readings["soil_type"] = readings.get("soil_type", "Loamy")
+                readings["micronutrients"] = readings.get("micronutrients", {
+                    "zinc": 1.0,
+                    "iron": 5.0,
+                    "manganese": 3.0,
+                    "copper": 0.5,
+                    "boron": 0.5
+                })
+            else:
+                st.error("⚠️ Failed to fetch IoT data, please check your ThingSpeak connection.")
+                st.stop()
+        # ---------------------------------------------
 
-            submitted = st.form_submit_button("🔍 Analyse Soil")
+        # Keep your existing form (Manual mode)
+        else:
+            with st.form("user_input_form"):
+                pH = st.number_input("Soil pH", min_value=3.0, max_value=10.0, value=6.5, step=0.1)
+                nitrogen = st.number_input("Nitrogen (ppm)", min_value=0, max_value=300, value=50, step=1)
+                phosphorus = st.number_input("Phosphorus (ppm)", min_value=0, max_value=300, value=40, step=1)
+                potassium = st.number_input("Potassium (ppm)", min_value=0, max_value=300, value=60, step=1)
+                moisture = st.number_input("Soil Moisture (%)", min_value=0.0, max_value=100.0, value=40.0, step=0.1)
+                temperature = st.number_input("Soil Temperature (°C)", min_value=0.0, max_value=50.0, value=25.0, step=0.1)
+                humidity = st.number_input("Humidity (%)", min_value=0, max_value=100, value=60, step=1)
+                organic_matter = st.number_input("Organic Matter (%)", min_value=0.0, max_value=10.0, value=2.5, step=0.1)
+                ec = st.number_input("EC (dS/m)", min_value=0.0, max_value=5.0, value=1.5, step=0.1)
+                soil_type = st.selectbox("Soil Type", ["Sandy", "Loamy", "Clayey"])
+                zinc = st.number_input("Zinc (ppm)", min_value=0.0, max_value=5.0, value=1.0, step=0.1)
+                iron = st.number_input("Iron (ppm)", min_value=0.0, max_value=20.0, value=5.0, step=0.1)
+                manganese = st.number_input("Manganese (ppm)", min_value=0.0, max_value=10.0, value=3.0, step=0.1)
+                copper = st.number_input("Copper (ppm)", min_value=0.0, max_value=2.0, value=0.5, step=0.1)
+                boron = st.number_input("Boron (ppm)", min_value=0.0, max_value=2.0, value=0.5, step=0.1)
+                submitted = st.form_submit_button("🔍 Analyse Soil")
 
-        if submitted:
-            # Build readings dictionary like before
-            readings = {
-                "pH": pH,
-                "nitrogen": nitrogen,
-                "phosphorus": phosphorus,
-                "potassium": potassium,
-                "moisture": moisture,
-                "temperature": temperature,
-                "humidity": humidity,
-                "organic_matter": organic_matter,
-                "ec": ec,
-                "soil_type": soil_type,
-                "micronutrients": {
-                    "zinc": zinc,
-                    "iron": iron,
-                    "manganese": manganese,
-                    "copper": copper,
-                    "boron": boron
+            if submitted:
+                readings = {
+                    "pH": pH,
+                    "nitrogen": nitrogen,
+                    "phosphorus": phosphorus,
+                    "potassium": potassium,
+                    "moisture": moisture,
+                    "temperature": temperature,
+                    "humidity": humidity,
+                    "organic_matter": organic_matter,
+                    "ec": ec,
+                    "soil_type": soil_type,
+                    "micronutrients": {
+                        "zinc": zinc,
+                        "iron": iron,
+                        "manganese": manganese,
+                        "copper": copper,
+                        "boron": boron
+                    }
                 }
-            }
 
-            # -------- Plot Gauges --------
-            fig_soil = make_subplots(rows=2, cols=3,
-                                    specs=[[{'type': 'indicator'}, {'type': 'indicator'}, {'type': 'indicator'}],
-                                        [{'type': 'indicator'}, {'type': 'indicator'}, {'type': 'indicator'}]])
+    # ✅ Ensure readings exist before plotting
+    if not readings:
+        st.warning("⚠️ No sensor or manual data available yet.")
+        st.stop()
 
-            fig_soil.add_trace(go.Indicator(mode="gauge+number", value=readings['pH'],
-                            title={'text': "pH Level"},
-                            gauge={'axis': {'range': [5, 8]}, 'bar': {'color': "darkblue"}}), row=1, col=1)
+    # -------- Plot Gauges --------
+    fig_soil = make_subplots(rows=2, cols=3,
+                            specs=[[{'type': 'indicator'}, {'type': 'indicator'}, {'type': 'indicator'}],
+                                   [{'type': 'indicator'}, {'type': 'indicator'}, {'type': 'indicator'}]])
 
-            fig_soil.add_trace(go.Indicator(mode="gauge+number", value=readings['moisture'],
-                            title={'text': "Moisture %"},
-                            gauge={'axis': {'range': [0, 100]}, 'bar': {'color': "green"}}), row=1, col=2)
+    fig_soil.add_trace(go.Indicator(mode="gauge+number", value=readings['pH'],
+                    title={'text': "pH Level"},
+                    gauge={'axis': {'range': [5, 8]}, 'bar': {'color': "darkblue"}}), row=1, col=1)
 
-            fig_soil.add_trace(go.Indicator(mode="gauge+number", value=readings['organic_matter'],
-                            title={'text': "Organic Matter %"},
-                            gauge={'axis': {'range': [0, 5]}, 'bar': {'color': "brown"}}), row=1, col=3)
+    fig_soil.add_trace(go.Indicator(mode="gauge+number", value=readings['moisture'],
+                    title={'text': "Moisture %"},
+                    gauge={'axis': {'range': [0, 100]}, 'bar': {'color': "green"}}), row=1, col=2)
 
-            fig_soil.add_trace(go.Indicator(mode="gauge+number", value=readings['nitrogen'],
-                            title={'text': "Nitrogen (ppm)"},
-                            gauge={'axis': {'range': [0, 100]}, 'bar': {'color': "blue"}}), row=2, col=1)
+    fig_soil.add_trace(go.Indicator(mode="gauge+number", value=readings['organic_matter'],
+                    title={'text': "Organic Matter %"},
+                    gauge={'axis': {'range': [0, 5]}, 'bar': {'color': "brown"}}), row=1, col=3)
 
-            fig_soil.add_trace(go.Indicator(mode="gauge+number", value=readings['phosphorus'],
-                            title={'text': "Phosphorus (ppm)"},
-                            gauge={'axis': {'range': [0, 100]}, 'bar': {'color': "purple"}}), row=2, col=2)
+    fig_soil.add_trace(go.Indicator(mode="gauge+number", value=readings['nitrogen'],
+                    title={'text': "Nitrogen (ppm)"},
+                    gauge={'axis': {'range': [0, 100]}, 'bar': {'color': "blue"}}), row=2, col=1)
 
-            fig_soil.add_trace(go.Indicator(mode="gauge+number", value=readings['potassium'],
-                            title={'text': "Potassium (ppm)"},
-                            gauge={'axis': {'range': [0, 100]}, 'bar': {'color': "orange"}}), row=2, col=3)
+    fig_soil.add_trace(go.Indicator(mode="gauge+number", value=readings['phosphorus'],
+                    title={'text': "Phosphorus (ppm)"},
+                    gauge={'axis': {'range': [0, 100]}, 'bar': {'color': "purple"}}), row=2, col=2)
 
-            fig_soil.update_layout(height=400, showlegend=False)
-            st.plotly_chart(fig_soil, use_container_width=True)
+    fig_soil.add_trace(go.Indicator(mode="gauge+number", value=readings['potassium'],
+                    title={'text': "Potassium (ppm)"},
+                    gauge={'axis': {'range': [0, 100]}, 'bar': {'color': "orange"}}), row=2, col=3)
 
-            # -------- Show Current Soil Parameters --------
-            st.markdown(f"""
-            ### Current Soil Parameters:
-            - **pH Level**: {readings['pH']}
-            - **Nitrogen (N)**: {readings['nitrogen']} ppm
-            - **Phosphorus (P)**: {readings['phosphorus']} ppm
-            - **Potassium (K)**: {readings['potassium']} ppm
-            - **Moisture**: {readings['moisture']}%
-            - **Temperature**: {readings['temperature']}°C
-            - **Humidity**: {readings['humidity']}%
-            - **Organic Matter**: {readings['organic_matter']}%
-            - **EC**: {readings['ec']} dS/m
-            - **Soil Type**: {readings['soil_type']}
+    fig_soil.update_layout(height=400, showlegend=False)
+    st.plotly_chart(fig_soil, use_container_width=True)
 
-            ### Micronutrients:
-            - **Zinc**: {readings['micronutrients']['zinc']} ppm
-            - **Iron**: {readings['micronutrients']['iron']} ppm
-            - **Manganese**: {readings['micronutrients']['manganese']} ppm
-            - **Copper**: {readings['micronutrients']['copper']} ppm
-            - **Boron**: {readings['micronutrients']['boron']} ppm
-            """)
+    # -------- Show Current Soil Parameters --------
+    st.markdown(f"""
+    ### Current Soil Parameters:
+    - **pH Level**: {readings['pH']}
+    - **Nitrogen (N)**: {readings['nitrogen']} ppm
+    - **Phosphorus (P)**: {readings['phosphorus']} ppm
+    - **Potassium (K)**: {readings['potassium']} ppm
+    - **Moisture**: {readings['moisture']}%
+    - **Temperature**: {readings['temperature']}°C
+    - **Humidity**: {readings['humidity']}%
+    - **Organic Matter**: {readings['organic_matter']}%
+    - **EC**: {readings['ec']} dS/m
+    - **Soil Type**: {readings['soil_type']}
 
-            # -------- Fertilizer Recommendation --------
-            recommendations, fertilizer_details = calculate_fertilizer_requirements(readings, selected_crop)
+    ### Micronutrients:
+    - **Zinc**: {readings['micronutrients']['zinc']} ppm
+    - **Iron**: {readings['micronutrients']['iron']} ppm
+    - **Manganese**: {readings['micronutrients']['manganese']} ppm
+    - **Copper**: {readings['micronutrients']['copper']} ppm
+    - **Boron**: {readings['micronutrients']['boron']} ppm
+    """)
 
-            st.success(f"""
-            ### 🌱 Fertilizer Recommendations for {selected_crop}:
+    # -------- Fertilizer Recommendation --------
+    recommendations, fertilizer_details = calculate_fertilizer_requirements(readings, selected_crop)
 
-            **Required Nutrients (kg/ha):**
-            - Nitrogen (N): {recommendations['N']:.1f}
-            - Phosphorus (P): {recommendations['P']:.1f}
-            - Potassium (K): {recommendations['K']:.1f}
+    st.success(f"""
+    ### 🌱 Fertilizer Recommendations for {selected_crop}:
 
-            **Recommended Fertilizers:**
-            - **Urea**: {fertilizer_details['Nitrogen']['Urea']:.1f} kg/ha
-            - **DAP**: {fertilizer_details['Phosphorus']['DAP']:.1f} kg/ha
-            - **MOP**: {fertilizer_details['Potassium']['MOP']:.1f} kg/ha
-            """)
+    **Required Nutrients (kg/ha):**
+    - Nitrogen (N): {recommendations['N']:.1f}
+    - Phosphorus (P): {recommendations['P']:.1f}
+    - Potassium (K): {recommendations['K']:.1f}
 
-            # -------- Soil Health Status --------
-            st.info(f"""
-            ### 🌍 Soil Health Status:
-            - pH is {'optimal' if CROPS[selected_crop]['pH'][0] <= readings['pH'] <= CROPS[selected_crop]['pH'][1] else 'needs adjustment'}
-            - Nitrogen level is {'sufficient' if readings['nitrogen'] >= CROPS[selected_crop]['N'] * 0.8 else 'low'}
-            - Phosphorus level is {'sufficient' if readings['phosphorus'] >= CROPS[selected_crop]['P'] * 0.8 else 'low'}
-            - Potassium level is {'sufficient' if readings['potassium'] >= CROPS[selected_crop]['K'] * 0.8 else 'low'}
-            - Moisture level is {'optimal' if 40 <= readings['moisture'] <= 60 else 'needs adjustment'}
-            - Organic matter is {'good' if readings['organic_matter'] >= 2.0 else 'low'}
-            """)
-    
+    **Recommended Fertilizers:**
+    - **Urea**: {fertilizer_details['Nitrogen']['Urea']:.1f} kg/ha
+    - **DAP**: {fertilizer_details['Phosphorus']['DAP']:.1f} kg/ha
+    - **MOP**: {fertilizer_details['Potassium']['MOP']:.1f} kg/ha
+    """)
+
+    # -------- Soil Health Status --------
+    st.info(f"""
+    ### 🌍 Soil Health Status:
+    - pH is {'optimal' if CROPS[selected_crop]['pH'][0] <= readings['pH'] <= CROPS[selected_crop]['pH'][1] else 'needs adjustment'}
+    - Nitrogen level is {'sufficient' if readings['nitrogen'] >= CROPS[selected_crop]['N'] * 0.8 else 'low'}
+    - Phosphorus level is {'sufficient' if readings['phosphorus'] >= CROPS[selected_crop]['P'] * 0.8 else 'low'}
+    - Potassium level is {'sufficient' if readings['potassium'] >= CROPS[selected_crop]['K'] * 0.8 else 'low'}
+    - Moisture level is {'optimal' if 40 <= readings['moisture'] <= 60 else 'needs adjustment'}
+    - Organic matter is {'good' if readings['organic_matter'] >= 2.0 else 'low'}
+    """)
+
     with col2:
         st.subheader("📝 Farming Tips")
         st.markdown("""
@@ -538,6 +586,7 @@ with tab1:
            - Implement integrated pest management
            - Maintain soil health
         """)
+
 with tab2:
     st.subheader("🌤️ Weather Forecast")
     if api_key:
