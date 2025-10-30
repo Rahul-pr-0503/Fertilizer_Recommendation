@@ -410,27 +410,45 @@ with tab1:
         # ----------- IoT Mode Integration ------------
         if input_mode == "IoT Sensor":
             st.info("📡 Fetching live data from IoT sensors via ThingSpeak...")
-            readings = get_iot_data()
-            if readings:
+
+            # Fetch data from your ThingSpeak channel
+            url = "https://api.thingspeak.com/channels/3138119/feeds.json?api_key=P6SCVY4THF4V7ZKC&results=1"
+
+            try:
+                response = requests.get(url, timeout=5)
+                data = response.json()['feeds'][0]
+
+                readings = {
+                    "pH": float(data['field1']),
+                    "nitrogen": float(data['field2']),
+                    "phosphorus": float(data['field3']),
+                    "potassium": float(data['field4']),
+                    "moisture": float(data['field5']),
+                    "temperature": float(data['field6']),
+                    "humidity": float(data['field7']),
+                }
+
                 st.success("✅ Live IoT data received successfully!")
                 st.write(readings)
-                # Add default missing values for compatibility
-                readings["organic_matter"] = readings.get("organic_matter", 2.5)
-                readings["ec"] = readings.get("ec", 1.5)
-                readings["soil_type"] = readings.get("soil_type", "Loamy")
-                readings["micronutrients"] = readings.get("micronutrients", {
+
+                # Add default placeholders for other soil properties
+                readings["organic_matter"] = 2.5
+                readings["ec"] = 1.5
+                readings["soil_type"] = "Loamy"
+                readings["micronutrients"] = {
                     "zinc": 1.0,
                     "iron": 5.0,
                     "manganese": 3.0,
                     "copper": 0.5,
                     "boron": 0.5
-                })
-            else:
-                st.error("⚠️ Failed to fetch IoT data, please check your ThingSpeak connection.")
+                }
+
+            except Exception as e:
+                st.error(f"⚠️ Failed to fetch IoT data: {e}")
                 st.stop()
         # ---------------------------------------------
 
-        # Keep your existing form (Manual mode)
+        # Manual Mode (user input form)
         else:
             with st.form("user_input_form"):
                 pH = st.number_input("Soil pH", min_value=3.0, max_value=10.0, value=6.5, step=0.1)
@@ -474,89 +492,93 @@ with tab1:
     # ✅ Ensure readings exist before plotting
     if not readings:
         st.warning("⚠️ No sensor or manual data available yet.")
-        st.stop()
+      
 
     # -------- Plot Gauges --------
-    fig_soil = make_subplots(rows=2, cols=3,
-                            specs=[[{'type': 'indicator'}, {'type': 'indicator'}, {'type': 'indicator'}],
-                                   [{'type': 'indicator'}, {'type': 'indicator'}, {'type': 'indicator'}]])
+    if readings is None:
+        st.warning("⚠️ No soil data available yet.")
+    else:
 
-    fig_soil.add_trace(go.Indicator(mode="gauge+number", value=readings['pH'],
-                    title={'text': "pH Level"},
-                    gauge={'axis': {'range': [5, 8]}, 'bar': {'color': "darkblue"}}), row=1, col=1)
+        fig_soil = make_subplots(rows=2, cols=3,
+                                specs=[[{'type': 'indicator'}, {'type': 'indicator'}, {'type': 'indicator'}],
+                                    [{'type': 'indicator'}, {'type': 'indicator'}, {'type': 'indicator'}]])
 
-    fig_soil.add_trace(go.Indicator(mode="gauge+number", value=readings['moisture'],
-                    title={'text': "Moisture %"},
-                    gauge={'axis': {'range': [0, 100]}, 'bar': {'color': "green"}}), row=1, col=2)
+        fig_soil.add_trace(go.Indicator(mode="gauge+number", value=readings['pH'],
+                        title={'text': "pH Level"},
+                        gauge={'axis': {'range': [5, 8]}, 'bar': {'color': "darkblue"}}), row=1, col=1)
 
-    fig_soil.add_trace(go.Indicator(mode="gauge+number", value=readings['organic_matter'],
-                    title={'text': "Organic Matter %"},
-                    gauge={'axis': {'range': [0, 5]}, 'bar': {'color': "brown"}}), row=1, col=3)
+        fig_soil.add_trace(go.Indicator(mode="gauge+number", value=readings['moisture'],
+                        title={'text': "Moisture %"},
+                        gauge={'axis': {'range': [0, 100]}, 'bar': {'color': "green"}}), row=1, col=2)
 
-    fig_soil.add_trace(go.Indicator(mode="gauge+number", value=readings['nitrogen'],
-                    title={'text': "Nitrogen (ppm)"},
-                    gauge={'axis': {'range': [0, 100]}, 'bar': {'color': "blue"}}), row=2, col=1)
+        fig_soil.add_trace(go.Indicator(mode="gauge+number", value=readings['organic_matter'],
+                        title={'text': "Organic Matter %"},
+                        gauge={'axis': {'range': [0, 5]}, 'bar': {'color': "brown"}}), row=1, col=3)
 
-    fig_soil.add_trace(go.Indicator(mode="gauge+number", value=readings['phosphorus'],
-                    title={'text': "Phosphorus (ppm)"},
-                    gauge={'axis': {'range': [0, 100]}, 'bar': {'color': "purple"}}), row=2, col=2)
+        fig_soil.add_trace(go.Indicator(mode="gauge+number", value=readings['nitrogen'],
+                        title={'text': "Nitrogen (ppm)"},
+                        gauge={'axis': {'range': [0, 100]}, 'bar': {'color': "blue"}}), row=2, col=1)
 
-    fig_soil.add_trace(go.Indicator(mode="gauge+number", value=readings['potassium'],
-                    title={'text': "Potassium (ppm)"},
-                    gauge={'axis': {'range': [0, 100]}, 'bar': {'color': "orange"}}), row=2, col=3)
+        fig_soil.add_trace(go.Indicator(mode="gauge+number", value=readings['phosphorus'],
+                        title={'text': "Phosphorus (ppm)"},
+                        gauge={'axis': {'range': [0, 100]}, 'bar': {'color': "purple"}}), row=2, col=2)
 
-    fig_soil.update_layout(height=400, showlegend=False)
-    st.plotly_chart(fig_soil, use_container_width=True)
+        fig_soil.add_trace(go.Indicator(mode="gauge+number", value=readings['potassium'],
+                        title={'text': "Potassium (ppm)"},
+                        gauge={'axis': {'range': [0, 100]}, 'bar': {'color': "orange"}}), row=2, col=3)
 
-    # -------- Show Current Soil Parameters --------
-    st.markdown(f"""
-    ### Current Soil Parameters:
-    - **pH Level**: {readings['pH']}
-    - **Nitrogen (N)**: {readings['nitrogen']} ppm
-    - **Phosphorus (P)**: {readings['phosphorus']} ppm
-    - **Potassium (K)**: {readings['potassium']} ppm
-    - **Moisture**: {readings['moisture']}%
-    - **Temperature**: {readings['temperature']}°C
-    - **Humidity**: {readings['humidity']}%
-    - **Organic Matter**: {readings['organic_matter']}%
-    - **EC**: {readings['ec']} dS/m
-    - **Soil Type**: {readings['soil_type']}
+        fig_soil.update_layout(height=400, showlegend=False)
+        st.plotly_chart(fig_soil, use_container_width=True)
 
-    ### Micronutrients:
-    - **Zinc**: {readings['micronutrients']['zinc']} ppm
-    - **Iron**: {readings['micronutrients']['iron']} ppm
-    - **Manganese**: {readings['micronutrients']['manganese']} ppm
-    - **Copper**: {readings['micronutrients']['copper']} ppm
-    - **Boron**: {readings['micronutrients']['boron']} ppm
-    """)
+        # -------- Show Current Soil Parameters --------
+        st.markdown(f"""
+        ### Current Soil Parameters:
+        - **pH Level**: {readings['pH']}
+        - **Nitrogen (N)**: {readings['nitrogen']} ppm
+        - **Phosphorus (P)**: {readings['phosphorus']} ppm
+        - **Potassium (K)**: {readings['potassium']} ppm
+        - **Moisture**: {readings['moisture']}%
+        - **Temperature**: {readings['temperature']}°C
+        - **Humidity**: {readings['humidity']}%
+        - **Organic Matter**: {readings['organic_matter']}%
+        - **EC**: {readings['ec']} dS/m
+        - **Soil Type**: {readings['soil_type']}
 
-    # -------- Fertilizer Recommendation --------
-    recommendations, fertilizer_details = calculate_fertilizer_requirements(readings, selected_crop)
+        ### Micronutrients:
+        - **Zinc**: {readings['micronutrients']['zinc']} ppm
+        - **Iron**: {readings['micronutrients']['iron']} ppm
+        - **Manganese**: {readings['micronutrients']['manganese']} ppm
+        - **Copper**: {readings['micronutrients']['copper']} ppm
+        - **Boron**: {readings['micronutrients']['boron']} ppm
+        """)
 
-    st.success(f"""
-    ### 🌱 Fertilizer Recommendations for {selected_crop}:
+        # -------- Fertilizer Recommendation --------
+        recommendations, fertilizer_details = calculate_fertilizer_requirements(readings, selected_crop)
 
-    **Required Nutrients (kg/ha):**
-    - Nitrogen (N): {recommendations['N']:.1f}
-    - Phosphorus (P): {recommendations['P']:.1f}
-    - Potassium (K): {recommendations['K']:.1f}
+        st.success(f"""
+        ### 🌱 Fertilizer Recommendations for {selected_crop}:
 
-    **Recommended Fertilizers:**
-    - **Urea**: {fertilizer_details['Nitrogen']['Urea']:.1f} kg/ha
-    - **DAP**: {fertilizer_details['Phosphorus']['DAP']:.1f} kg/ha
-    - **MOP**: {fertilizer_details['Potassium']['MOP']:.1f} kg/ha
-    """)
+        **Required Nutrients (kg/ha):**
+        - Nitrogen (N): {recommendations['N']:.1f}
+        - Phosphorus (P): {recommendations['P']:.1f}
+        - Potassium (K): {recommendations['K']:.1f}
 
-    # -------- Soil Health Status --------
-    st.info(f"""
-    ### 🌍 Soil Health Status:
-    - pH is {'optimal' if CROPS[selected_crop]['pH'][0] <= readings['pH'] <= CROPS[selected_crop]['pH'][1] else 'needs adjustment'}
-    - Nitrogen level is {'sufficient' if readings['nitrogen'] >= CROPS[selected_crop]['N'] * 0.8 else 'low'}
-    - Phosphorus level is {'sufficient' if readings['phosphorus'] >= CROPS[selected_crop]['P'] * 0.8 else 'low'}
-    - Potassium level is {'sufficient' if readings['potassium'] >= CROPS[selected_crop]['K'] * 0.8 else 'low'}
-    - Moisture level is {'optimal' if 40 <= readings['moisture'] <= 60 else 'needs adjustment'}
-    - Organic matter is {'good' if readings['organic_matter'] >= 2.0 else 'low'}
-    """)
+        **Recommended Fertilizers:**
+        - **Urea**: {fertilizer_details['Nitrogen']['Urea']:.1f} kg/ha
+        - **DAP**: {fertilizer_details['Phosphorus']['DAP']:.1f} kg/ha
+        - **MOP**: {fertilizer_details['Potassium']['MOP']:.1f} kg/ha
+        """)
+
+        # -------- Soil Health Status --------
+        st.info(f"""
+        ### 🌍 Soil Health Status:
+        - pH is {'optimal' if CROPS[selected_crop]['pH'][0] <= readings['pH'] <= CROPS[selected_crop]['pH'][1] else 'needs adjustment'}
+        - Nitrogen level is {'sufficient' if readings['nitrogen'] >= CROPS[selected_crop]['N'] * 0.8 else 'low'}
+        - Phosphorus level is {'sufficient' if readings['phosphorus'] >= CROPS[selected_crop]['P'] * 0.8 else 'low'}
+        - Potassium level is {'sufficient' if readings['potassium'] >= CROPS[selected_crop]['K'] * 0.8 else 'low'}
+        - Moisture level is {'optimal' if 40 <= readings['moisture'] <= 60 else 'needs adjustment'}
+        - Organic matter is {'good' if readings['organic_matter'] >= 2.0 else 'low'}
+        """)
 
     with col2:
         st.subheader("📝 Farming Tips")
@@ -588,163 +610,92 @@ with tab1:
         """)
 
 with tab2:
-    st.subheader("🌤️ Weather Forecast")
-    if api_key:
-        if st.button("🔄 Get Weather Report"):
-            with st.spinner("Fetching weather data..."):
-                forecast = get_weather_data(latitude, longitude, api_key)
+    st.subheader("Weather Forecast")
 
-                if forecast:
-                    df = pd.DataFrame(forecast)
+    if not api_key:
+        st.warning("⚠️ Please enter your OpenWeatherMap API key in the sidebar to view live weather data.")
+        st.stop()
 
-                    # Plot weather
-                    fig = make_subplots(rows=2, cols=1, subplot_titles=("Temperature & Rainfall", "Humidity & Wind Speed"))
-                    fig.add_trace(go.Scatter(x=df["date"], y=df["temperature"], name="Temperature (°C)", line=dict(color="red")), row=1, col=1)
-                    fig.add_trace(go.Bar(x=df["date"], y=df["rainfall"], name="Rainfall (mm)"), row=1, col=1)
-                    fig.add_trace(go.Scatter(x=df["date"], y=df["humidity"], name="Humidity (%)", line=dict(color="blue")), row=2, col=1)
-                    fig.add_trace(go.Scatter(x=df["date"], y=df["wind_speed"], name="Wind Speed (km/h)", line=dict(color="green")), row=2, col=1)
-                    fig.update_layout(height=600, showlegend=True)
-                    st.plotly_chart(fig, use_container_width=True)
+    with st.spinner("Fetching live weather data..."):
+        forecast = get_weather_data(latitude, longitude, api_key)
 
-                    # Table
-                    st.dataframe(df)
+    if forecast:
+        df = pd.DataFrame(forecast)
 
-                    # Current conditions
-                    current_weather = forecast[0]
-                    st.markdown(f"""
-                    ### Current Weather Conditions
-                    - **Temperature**: {current_weather['temperature']}°C
-                    - **Humidity**: {current_weather['humidity']}%
-                    - **Wind**: {current_weather['wind_speed']} km/h from {current_weather['wind_direction']}
-                    - **Pressure**: {current_weather['pressure']} hPa
-                    - **Visibility**: {current_weather['visibility']} km
-                    - **Condition**: {current_weather['description'].title()}
-                    """)
+        # --- Weather Graphs ---
+        fig = make_subplots(rows=2, cols=1, subplot_titles=("Temperature & Rainfall", "Humidity & Wind Speed"))
+        fig.add_trace(go.Scatter(x=df["date"], y=df["temperature"], name="Temperature (°C)", line=dict(color="red")), row=1, col=1)
+        fig.add_trace(go.Bar(x=df["date"], y=df["rainfall"], name="Rainfall (mm)"), row=1, col=1)
+        fig.add_trace(go.Scatter(x=df["date"], y=df["humidity"], name="Humidity (%)", line=dict(color="blue")), row=2, col=1)
+        fig.add_trace(go.Scatter(x=df["date"], y=df["wind_speed"], name="Wind Speed (km/h)", line=dict(color="green")), row=2, col=1)
+        fig.update_layout(height=600, showlegend=True)
+        st.plotly_chart(fig, use_container_width=True)
 
-                    st.subheader("🌾 Farming Weather Alerts")
+        # --- Data Table ---
+        st.dataframe(df)
 
-                    alerts_triggered = False  # track if any warning is shown
+        # --- Current Weather Summary ---
+        current = df.iloc[0]
+        st.markdown(f"""
+        ### 🌡️ Current Weather Conditions:
+        - **Temperature**: {current['temperature']}°C  
+        - **Humidity**: {current['humidity']}%  
+        - **Wind**: {current['wind_speed']} km/h from {current['wind_direction']}  
+        - **Pressure**: {current['pressure']} hPa  
+        - **Visibility**: {current['visibility']} km  
+        - **Condition**: {current['description'].title()}
+        """)
 
-                    # Temperature alerts
-                    if current_weather['temperature'] > 35:
-                        alerts_triggered = True
-                        st.warning("""
-                        ⚠️ **High Temperature Alert**
-                        - Avoid fertilizer application during peak hours (10 AM - 4 PM)
-                        - Consider early morning (5-7 AM) or late evening (5-7 PM) operations
-                        - Increase irrigation frequency to prevent heat stress
-                        - Monitor soil moisture more frequently
-                        """)
-                    elif current_weather['temperature'] < 10:
-                        alerts_triggered = True
-                        st.warning("""
-                        ⚠️ **Low Temperature Alert**
-                        - Delay fertilizer application until temperatures rise
-                        - Protect young plants with mulch or covers
-                        - Consider using cold-resistant crop varieties
-                        - Monitor for frost damage
-                        """)
+        st.subheader("🌾 Smart Farming Weather Alerts")
 
-                    # Rainfall alerts
-                    if current_weather['rainfall'] > 10:
-                        alerts_triggered = True
-                        st.warning("""
-                        ⚠️ **Heavy Rainfall Alert**
-                        - Postpone fertilizer application to prevent runoff
-                        - Check drainage systems
-                        - Monitor for waterlogging
-                        - Prepare for potential disease outbreaks
-                        - Consider foliar applications after rain stops
-                        """)
-                    elif current_weather['rainfall'] == 0 and df['rainfall'].sum() < 5:
-                        alerts_triggered = True
-                        st.warning("""
-                        ⚠️ **Dry Spell Alert**
-                        - Increase irrigation frequency
-                        - Consider drought-resistant crop varieties
-                        - Apply mulch to conserve soil moisture
-                        - Monitor soil moisture levels closely
-                        - Schedule irrigation during cooler hours
-                        """)
+        alerts_triggered = False
 
-                    # Wind alerts
-                    if current_weather['wind_speed'] > 30:
-                        alerts_triggered = True
-                        st.warning("""
-                        ⚠️ **Strong Wind Alert**
-                        - Postpone spraying operations
-                        - Secure farm structures and equipment
-                        - Protect young plants with windbreaks
-                        - Delay fertilizer application to prevent drift
-                        - Consider using granular fertilizers instead of sprays
-                        """)
-                    elif current_weather['wind_speed'] < 5:
-                        alerts_triggered = True
-                        st.info("""
-                        ℹ️ **Calm Wind Conditions**
-                        - Ideal for spraying operations
-                        - Good time for foliar applications
-                        - Suitable for aerial spraying if needed
-                        - Consider applying liquid fertilizers
-                        """)
+        # 🌡️ Temperature Alerts
+        if current['temperature'] > 35:
+            st.warning("🔥 **High Temperature Alert** — Avoid midday fertilizer application, increase irrigation.")
+            alerts_triggered = True
+        elif current['temperature'] < 10:
+            st.warning("🥶 **Low Temperature Alert** — Protect crops, use mulch, and delay fertilization.")
+            alerts_triggered = True
 
-                    # Humidity alerts
-                    if current_weather['humidity'] > 80:
-                        alerts_triggered = True
-                        st.warning("""
-                        ⚠️ **High Humidity Alert**
-                        - Increased risk of fungal diseases
-                        - Monitor for pest infestations
-                        - Consider preventive fungicide applications
-                        - Ensure proper ventilation in greenhouses
-                        - Avoid overhead irrigation
-                        """)
-                    elif current_weather['humidity'] < 40:
-                        alerts_triggered = True
-                        st.warning("""
-                        ⚠️ **Low Humidity Alert**
-                        - Increase irrigation frequency
-                        - Monitor for water stress
-                        - Consider using shade nets
-                        - Apply anti-transpirants if needed
-                        - Schedule irrigation during early morning
-                        """)
+        # 🌧️ Rainfall Alerts
+        if current['rainfall'] > 10:
+            st.warning("🌧️ **Heavy Rainfall Alert** — Postpone fertilizer/pesticide application.")
+            alerts_triggered = True
+        elif current['rainfall'] == 0 and df['rainfall'].sum() < 5:
+            st.warning("☀️ **Dry Spell Alert** — Increase irrigation and apply mulch to retain soil moisture.")
+            alerts_triggered = True
 
-                    # Heat stress alert
-                    if current_weather['temperature'] > 30 and current_weather['humidity'] > 70:
-                        alerts_triggered = True
-                        st.warning("""
-                        ⚠️ **Heat Stress Alert**
-                        - High risk of heat stress in crops
-                        - Increase irrigation frequency
-                        - Consider using shade nets
-                        - Monitor for wilting
-                        - Apply anti-transpirants if needed
-                        """)
+        # 🌬️ Wind Alerts
+        if current['wind_speed'] > 30:
+            st.warning("💨 **Strong Wind Alert** — Delay spraying and secure structures.")
+            alerts_triggered = True
+        elif current['wind_speed'] < 5:
+            st.info("🍃 **Calm Wind Conditions** — Ideal for foliar sprays and pesticide application.")
+            alerts_triggered = True
 
-                    # Storm alert
-                    if current_weather['rainfall'] > 5 and current_weather['wind_speed'] > 20:
-                        alerts_triggered = True
-                        st.warning("""
-                        ⚠️ **Storm Alert**
-                        - Secure farm equipment and structures
-                        - Postpone all field operations
-                        - Check drainage systems
-                        - Prepare for potential crop damage
-                        - Monitor for waterlogging
-                        """)
+        # 💧 Humidity Alerts
+        if current['humidity'] > 80:
+            st.warning("💦 **High Humidity Alert** — Watch for fungal diseases; improve ventilation.")
+            alerts_triggered = True
+        elif current['humidity'] < 40:
+            st.warning("🔥 **Low Humidity Alert** — Increase irrigation and use shade nets if possible.")
+            alerts_triggered = True
 
-                    # ✅ If no alerts triggered
-                    if not alerts_triggered:
-                        st.info("""
-                        ✅ **Weather is favorable for farming.**
-                        - No major risks detected
-                        - Continue normal farming operations
-                        - Monitor soil moisture and crop health as usual
-                        """)
-                else:
-                    st.error("Failed to fetch weather data. Please try again later.")
+        # ☀️ Heat Stress Alert
+        if current['temperature'] > 30 and current['humidity'] > 70:
+            st.warning("🌡️ **Heat Stress Alert** — Increase irrigation, provide shade, avoid afternoon activities.")
+            alerts_triggered = True
 
+        # 🌪️ Storm Alert
+        if current['rainfall'] > 5 and current['wind_speed'] > 20:
+            st.warning("🌪️ **Storm Alert** — Secure equipment, postpone fieldwork, prepare for crop protection.")
+            alerts_triggered = True
+
+        if not alerts_triggered:
+            st.success("✅ **Weather is favorable for farming operations.**")
+    else:
+        st.error("❌ Unable to fetch weather data. Check API key, internet connection, or coordinates.")
 
 with tab3:
     st.subheader("📈 Historical Data Analysis")
