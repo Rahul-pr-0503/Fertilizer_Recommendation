@@ -14,11 +14,329 @@ import json
 BASE_URL = "http://api.openweathermap.org/data/2.5/forecast"
 
 model = joblib.load("fertilizer_models.pkl")
+tips = {
+    "English": """
+    ### Best Practices:
+    1. **Soil Preparation**
+       - Test soil before planting
+       - Maintain proper pH levels
+       - Ensure good drainage
+       - Add organic matter if needed
+
+    2. **Fertilizer Application**
+       - Follow recommended dosages
+       - Apply at right growth stages
+       - Use organic fertilizers when possible
+       - Consider split applications
+
+    3. **Water Management**
+       - Monitor soil moisture
+       - Implement drip irrigation
+       - Avoid over-watering
+       - Consider weather forecasts
+
+    4. **Sustainable Practices**
+       - Practice crop rotation
+       - Use cover crops
+       - Implement integrated pest management
+       - Maintain soil health
+    """,
+
+    "Kannada": """
+    ### ಉತ್ತಮ ಅಭ್ಯಾಸಗಳು:
+    1. **ಮಣ್ಣಿನ ತಯಾರಿ**
+       - ನೆಡುವ ಮೊದಲು ಮಣ್ಣನ್ನು ಪರೀಕ್ಷಿಸಿ
+       - ಸರಿಯಾದ pH ಮಟ್ಟವನ್ನು ಕಾಪಾಡಿ
+       - ಉತ್ತಮ ನೀರುಹೊರಹೋಗುವ ವ್ಯವಸ್ಥೆ ಇರಲಿ
+       - ಅಗತ್ಯವಿದ್ದರೆ ಸಾವಯವ ಪದಾರ್ಥವನ್ನು ಸೇರಿಸಿ
+
+    2. **ರಸಗೊಬ್ಬರದ ಬಳಕೆ**
+       - ಶಿಫಾರಸು ಮಾಡಿದ ಪ್ರಮಾಣವನ್ನು ಅನುಸರಿಸಿ
+       - ಸರಿಯಾದ ಬೆಳವಣಿಗೆಯ ಹಂತಗಳಲ್ಲಿ ಅನ್ವಯಿಸಿ
+       - ಸಾಧ್ಯವಾದಾಗ ಸಾವಯವ ರಸಗೊಬ್ಬರಗಳನ್ನು ಬಳಸಿ
+       - ವಿಭಜಿತ ಅನ್ವಯಿಕೆಯನ್ನು ಪರಿಗಣಿಸಿ
+
+    3. **ನೀರಿನ ನಿರ್ವಹಣೆ**
+       - ಮಣ್ಣಿನ ತೇವಾಂಶವನ್ನು ಗಮನಿಸಿ
+       - ಡ್ರಿಪ್ ನೀರಾವರಿ ವಿಧಾನವನ್ನು ಅಳವಡಿಸಿ
+       - ಅತಿಯಾದ ನೀರಾವರಿಯನ್ನು ತಪ್ಪಿಸಿ
+       - ಹವಾಮಾನ ಮುನ್ಸೂಚನೆಯನ್ನು ಪರಿಗಣಿಸಿ
+
+    4. **ಸ್ಥಿರಾಭಿವೃದ್ಧಿ ಅಭ್ಯಾಸಗಳು**
+       - ಬೆಳೆ ಪರಿವರ್ತನೆ ಅಭ್ಯಾಸವನ್ನು ಅನುಸರಿಸಿ
+       - ಕವರ್ ಬೆಳೆಗಳನ್ನು ಬಳಸಿ
+       - ಸಂಯೋಜಿತ ಕೀಟ ನಿರ್ವಹಣೆಯನ್ನು ಅಳವಡಿಸಿ
+       - ಮಣ್ಣಿನ ಆರೋಗ್ಯವನ್ನು ಕಾಪಾಡಿ
+    """,
+
+    "Hindi": """
+    ### सर्वोत्तम अभ्यास:
+    1. **मिट्टी की तैयारी**
+       - रोपण से पहले मिट्टी का परीक्षण करें
+       - उचित pH स्तर बनाए रखें
+       - अच्छी जल निकासी सुनिश्चित करें
+       - आवश्यकता होने पर जैविक पदार्थ जोड़ें
+
+    2. **उर्वरक का उपयोग**
+       - अनुशंसित मात्रा का पालन करें
+       - सही वृद्धि चरणों में लगाएँ
+       - संभव हो तो जैविक उर्वरक का उपयोग करें
+       - विभाजित अनुप्रयोग पर विचार करें
+
+    3. **जल प्रबंधन**
+       - मिट्टी की नमी की निगरानी करें
+       - ड्रिप सिंचाई लागू करें
+       - अधिक सिंचाई से बचें
+       - मौसम पूर्वानुमान पर विचार करें
+
+    4. **सतत अभ्यास**
+       - फसल चक्र का अभ्यास करें
+       - कवर फसलें उपयोग करें
+       - एकीकृत कीट प्रबंधन लागू करें
+       - मिट्टी के स्वास्थ्य को बनाए रखें
+    """
+}
+texts = {
+    "English": {
+        "title": "🌱 GreenGrow AI - Smart Soil Analysis System",
+        "about": "Analyze soil parameters and recommend suitable crops and fertilizers.",
+        "upload": "Upload Soil Image",
+        "analyze": "Analyze Soil",
+        "results": "🧪 Analysis Results",
+        "ph": "Soil pH Level",
+        "moisture": "Moisture Content",
+        "nitrogen": "Nitrogen Level",
+        "phosphorus": "Phosphorus Level",
+        "potassium": "Potassium Level",
+        "recommend": "Recommended Crop",
+        "fertilizer": "Suggested Fertilizer",
+        "no_file": "Please upload a soil image to proceed.",
+        "success": "Analysis completed successfully!",
+        "soil_analysis": "🧪 Soil Analysis",
+        "weather_forecast": "🌦️ Weather Forecast",
+        "historical_data": "📚 Historical Data",
+        "enter_details": "📊 Enter the Soil Details",
+        "tab1": "Soil Analysis",
+        "tab2": "Weather Forecast",
+        "tab3": "Historical Data",
+        "title1": "### Historical Statistics",
+        "yield": "Average Yield",
+        "rainfall": "Average Rainfall",
+        "temperature": "Average Temperature",
+        "fertilizer": "Average Fertilizer Usage",
+        "moisture": "Average Soil Moisture",
+        "ph": "Average Soil pH",
+        "price": "Average Market Price",
+        "labor": "Average Labor Cost",
+        "current": " Current Soil Parameters:",
+        "micro": "Micronutrients:",
+        "fert_title": "🌱 Fertilizer Recommendations for",
+        "req": "Required Nutrients (kg/ha):",
+        "rec": "Recommended Fertilizers:",
+        "health": "🌍 Soil Health Status:",
+        "ph_opt": "pH is optimal",
+        "ph_adj": "pH needs adjustment",
+        "n_low": "Nitrogen level is low",
+        "n_suf": "Nitrogen level is sufficient",
+        "p_low": "Phosphorus level is low",
+        "p_suf": "Phosphorus level is sufficient",
+        "k_low": "Potassium level is low",
+        "k_suf": "Potassium level is sufficient",
+        "m_opt": "Moisture level is optimal",
+        "m_adj": "Moisture needs adjustment",
+        "o_good": "Organic matter is good",
+        "o_low": "Organic matter is low",
+        "fetching_weather": "Fetching weather data...",
+        "temp_rainfall_chart": "Temperature & Rainfall",
+        "humidity_wind_chart": "Humidity & Wind Speed",
+        "temperature": "Temperature (°C)",
+        "rainfall": "Rainfall (mm)",
+        "humidity": "Humidity (%)",
+        "wind_speed": "Wind Speed (km/h)",
+        "from": "from",
+        "pressure": "Pressure",
+        "visibility": "Visibility",
+        "condition": "Condition",
+        "get_weather_button": "🔄 Get Weather Report",
+        "current_weather": "Current Weather Conditions",
+        "weather_alerts": "🌾 Farming Weather Alerts",
+        "high_temp_alert": "⚠️ High Temperature Alert — Avoid fertilizer application during peak hours.",
+        "low_temp_alert": "⚠️ Low Temperature Alert — Delay fertilizer application until temperatures rise.",
+        "heavy_rain_alert": "⚠️ Heavy Rainfall Alert — Postpone fertilizer application to prevent runoff.",
+        "dry_spell_alert": "⚠️ Dry Spell Alert — Increase irrigation frequency.",
+        "strong_wind_alert": "⚠️ Strong Wind Alert — Postpone spraying operations.",
+        "calm_wind_alert": "ℹ️ Calm Wind Conditions — Ideal for spraying and foliar applications.",
+        "high_humidity_alert": "⚠️ High Humidity Alert — Increased risk of fungal diseases.",
+        "low_humidity_alert": "⚠️ Low Humidity Alert — Increase irrigation and use shade nets.",
+        "heat_stress_alert": "⚠️ Heat Stress Alert — Increase irrigation and monitor for wilting.",
+        "storm_alert": "⚠️ Storm Alert — Secure farm equipment and postpone operations.",
+        "favorable_weather": "✅ Weather is favorable for farming.",
+        "weather_fetch_error": "Failed to fetch weather data. Please try again later.",
+    },
+    "Hindi": {
+        "title": "🌱 ग्रीनग्रो AI - स्मार्ट मिट्टी विश्लेषण प्रणाली",
+        "about": "मिट्टी के मापदंडों का विश्लेषण करें और उपयुक्त फसल और उर्वरक की सिफारिश करें।",
+        "upload": "मिट्टी की छवि अपलोड करें",
+        "analyze": "मिट्टी का विश्लेषण करें",
+        "results": "🧪 विश्लेषण परिणाम",
+        "ph": "मिट्टी का पीएच स्तर",
+        "moisture": "नमी की मात्रा",
+        "nitrogen": "नाइट्रोजन स्तर",
+        "phosphorus": "फास्फोरस स्तर",
+        "potassium": "पोटेशियम स्तर",
+        "recommend": "अनुशंसित फसल",
+        "fertilizer": "सुझाया गया उर्वरक",
+        "no_file": "कृपया मिट्टी की छवि अपलोड करें।",
+        "success": "विश्लेषण सफलतापूर्वक पूरा हुआ!",
+        "soil_analysis": "🧪 मिट्टी विश्लेषण",
+        "weather_forecast": "🌦️ मौसम का पूर्वानुमान",
+        "historical_data": "📚 ऐतिहासिक डेटा",
+        "enter_details": "📊 मिट्टी के विवरण दर्ज करें",
+        "tab1": "मिट्टी विश्लेषण",
+        "tab2": "मौसम का पूर्वानुमान",
+        "tab3": "ऐतिहासिक डेटा",
+        "title1": "### ऐतिहासिक सांख्यिकी",
+        "yield": "औसत उत्पादन",
+        "rainfall": "औसत वर्षा",
+        "temperature": "औसत तापमान",
+        "fertilizer": "औसत उर्वरक उपयोग",
+        "moisture": "औसत मिट्टी नमी",
+        "ph": "औसत मिट्टी pH",
+        "price": "औसत बाजार मूल्य",
+        "labor": "औसत श्रम लागत",
+        "current": "वर्तमान मिट्टी के पैरामीटर:",
+        "micro": "सूक्ष्म पोषक तत्व:",
+        "fert_title": "🌱 धान के लिए उर्वरक सिफारिशें:",
+        "req": "आवश्यक पोषक तत्व (किग्रा/हे):",
+        "rec": "अनुशंसित उर्वरक:",
+        "health": "🌍 मिट्टी की स्वास्थ्य स्थिति:",
+        "ph_opt": "pH सामान्य है",
+        "ph_adj": "pH समायोजन की आवश्यकता है",
+        "n_low": "नाइट्रोजन स्तर कम है",
+        "n_suf": "नाइट्रोजन स्तर पर्याप्त है",
+        "p_low": "फास्फोरस स्तर कम है",
+        "p_suf": "फास्फोरस स्तर पर्याप्त है",
+        "k_low": "पोटेशियम स्तर कम है",
+        "k_suf": "पोटेशियम स्तर पर्याप्त है",
+        "m_opt": "नमी स्तर सामान्य है",
+        "m_adj": "नमी समायोजन की आवश्यकता है",
+        "o_good": "जैविक पदार्थ अच्छा है",
+        "o_low": "जैविक पदार्थ कम है",
+        "fetching_weather": "मौसम डेटा प्राप्त किया जा रहा है...",
+        "temp_rainfall_chart": "तापमान और वर्षा",
+        "humidity_wind_chart": "आर्द्रता और पवन गति",
+        "temperature": "तापमान (°C)",
+        "rainfall": "वर्षा (mm)",
+        "humidity": "आर्द्रता (%)",
+        "wind_speed": "पवन गति (किमी/घंटा)",
+        "from": "की दिशा से",
+        "pressure": "दबाव",
+        "visibility": "दृश्यता",
+        "condition": "मौसम की स्थिति",
+        "current_weather": "वर्तमान मौसम की स्थिति",
+        "weather_alerts": "🌾 खेती के लिए मौसम चेतावनियाँ",
+        "high_temp_alert": "⚠️ उच्च तापमान चेतावनी — चरम समय (10 बजे से 4 बजे) में उर्वरक का उपयोग न करें।",
+        "low_temp_alert": "⚠️ कम तापमान चेतावनी — तापमान बढ़ने तक उर्वरक का प्रयोग न करें।",
+        "heavy_rain_alert": "⚠️ भारी वर्षा चेतावनी — उर्वरक का प्रयोग रोक दें ताकि बहाव न हो।",
+        "dry_spell_alert": "⚠️ शुष्क अवधि चेतावनी — सिंचाई की आवृत्ति बढ़ाएँ।",
+        "strong_wind_alert": "⚠️ तेज़ हवा चेतावनी — छिड़काव कार्य स्थगित करें।",
+        "calm_wind_alert": "ℹ️ शांत हवा की स्थिति — छिड़काव और पत्तों पर स्प्रे के लिए उपयुक्त समय।",
+        "high_humidity_alert": "⚠️ उच्च आर्द्रता चेतावनी — फफूंदी रोगों का खतरा बढ़ जाता है।",
+        "low_humidity_alert": "⚠️ कम आर्द्रता चेतावनी — सिंचाई बढ़ाएँ और शेड नेट का उपयोग करें।",
+        "heat_stress_alert": "⚠️ ताप तनाव चेतावनी — सिंचाई बढ़ाएँ और मुरझाने की निगरानी करें।",
+        "storm_alert": "⚠️ तूफान चेतावनी — उपकरण सुरक्षित रखें और कार्य स्थगित करें।",
+        "favorable_weather": "✅ खेती के लिए मौसम अनुकूल है।",
+        "weather_fetch_error": "मौसम डेटा प्राप्त करने में विफल। कृपया बाद में पुनः प्रयास करें।",
+        "get_weather_button": "🔄 मौसम रिपोर्ट प्राप्त करें",
+    },
+    "Kannada": {
+        "title": "🌱 ಗ್ರೀನ್‌ಗ್ರೋ AI - ಸ್ಮಾರ್ಟ್ ಮಣ್ಣಿನ ವಿಶ್ಲೇಷಣಾ ವ್ಯವಸ್ಥೆ",
+        "about": "ಮಣ್ಣಿನ ಪರಿಮಾಣಗಳನ್ನು ವಿಶ್ಲೇಷಿಸಿ ಸೂಕ್ತ ಬೆಳೆ ಮತ್ತು ರಸಗೊಬ್ಬರವನ್ನು ಶಿಫಾರಸು ಮಾಡಿ.",
+        "upload": "ಮಣ್ಣಿನ ಚಿತ್ರವನ್ನು ಅಪ್‌ಲೋಡ್ ಮಾಡಿ",
+        "analyze": "ಮಣ್ಣನ್ನು ವಿಶ್ಲೇಷಿಸಿ",
+        "results": "🧪 ವಿಶ್ಲೇಷಣಾ ಫಲಿತಾಂಶಗಳು",
+        "ph": "ಮಣ್ಣಿನ pH ಮಟ್ಟ",
+        "moisture": "ತೇವಾಂಶ ಪ್ರಮಾಣ",
+        "nitrogen": "ನೈಟ್ರೋಜನ್ ಮಟ್ಟ",
+        "phosphorus": "ಫಾಸ್ಫರಸ್ ಮಟ್ಟ",
+        "potassium": "ಪೊಟ್ಯಾಸಿಯಮ್ ಮಟ್ಟ",
+        "recommend": "ಶಿಫಾರಸು ಮಾಡಿದ ಬೆಳೆ",
+        "fertilizer": "ಸೂಚಿಸಿದ ರಸಗೊಬ್ಬರ",
+        "no_file": "ದಯವಿಟ್ಟು ಮಣ್ಣಿನ ಚಿತ್ರವನ್ನು ಅಪ್‌ಲೋಡ್ ಮಾಡಿ.",
+        "success": "ವಿಶ್ಲೇಷಣೆ ಯಶಸ್ವಿಯಾಗಿ ಪೂರ್ಣಗೊಂಡಿದೆ!",
+        "Farming Tips": "ಕೃಷಿ ಸಲಹೆಗಳು",
+        "soil_analysis": "🧪 ಮಣ್ಣಿನ ವಿಶ್ಲೇಷಣೆ",
+        "weather_forecast": "🌦️ ಹವಾಮಾನ ಮುನ್ಸೂಚನೆ",
+        "historical_data": "📚 ಐತಿಹಾಸಿಕ ಮಾಹಿತಿ",
+        "enter_details": "📊 ಮಣ್ಣಿನ ವಿವರಗಳನ್ನು ನಮೂದಿಸಿ",
+        "tab1": "ಮಣ್ಣಿನ ವಿಶ್ಲೇಷಣೆ",
+        "tab2": "ಹವಾಮಾನ ಮುನ್ಸೂಚನೆ",
+        "tab3": "ಐತಿಹಾಸಿಕ ಮಾಹಿತಿ",
+        "title1": "### ಐತಿಹಾಸಿಕ ಅಂಕಿಅಂಶಗಳು",
+        "yield": "ಸರಾಸರಿ ಉತ್ಪಾದನೆ",
+        "rainfall": "ಸರಾಸರಿ ಮಳೆ",
+        "temperature": "ಸರಾಸರಿ ತಾಪಮಾನ",
+        "fertilizer": "ಸರಾಸರಿ ರಸಗೊಬ್ಬರ ಬಳಕೆ",
+        "moisture": "ಸರಾಸರಿ ಮಣ್ಣಿನ ತೇವಾಂಶ",
+        "ph": "ಸರಾಸರಿ ಮಣ್ಣಿನ pH",
+        "price": "ಸರಾಸರಿ ಮಾರುಕಟ್ಟೆ ಬೆಲೆ",
+        "labor": "ಸರಾಸರಿ ಕಾರ್ಮಿಕ ವೆಚ್ಚ",
+        "current": "ಪ್ರಸ್ತುತ ಮಣ್ಣಿನ ಮಾನಗಳು:",
+        "micro": "ಕ್ಷುದ್ರಪೋಷಕಾಂಶಗಳು:",
+        "fert_title": "🌱 ಅಕ್ಕಿಗೆ ರಸಗೊಬ್ಬರ ಶಿಫಾರಸುಗಳು:",
+        "req": "ಅವಶ್ಯಕ ಪೋಷಕಾಂಶಗಳು (ಕೆಜಿ/ಹೆ):",
+        "rec": "ಶಿಫಾರಸು ಮಾಡಿದ ರಸಗೊಬ್ಬರಗಳು:",
+        "health": "🌍 ಮಣ್ಣಿನ ಆರೋಗ್ಯ ಸ್ಥಿತಿ:",
+        "ph_opt": "pH ಸರಿಯಾಗಿದೆ",
+        "ph_adj": "pH ತಿದ್ದುಪಡಿ ಅಗತ್ಯವಿದೆ",
+        "n_low": "ನೈಟ್ರೋಜನ್ ಮಟ್ಟ ಕಡಿಮೆ",
+        "n_suf": "ನೈಟ್ರೋಜನ್ ಮಟ್ಟ ಸಮರ್ಪಕವಾಗಿದೆ",
+        "p_low": "ಫಾಸ್ಫರಸ್ ಮಟ್ಟ ಕಡಿಮೆ",
+        "p_suf": "ಫಾಸ್ಫರಸ್ ಮಟ್ಟ ಸಮರ್ಪಕವಾಗಿದೆ",
+        "k_low": "ಪೋಟ್ಯಾಸಿಯಮ್ ಮಟ್ಟ ಕಡಿಮೆ",
+        "k_suf": "ಪೋಟ್ಯಾಸಿಯಮ್ ಮಟ್ಟ ಸಮರ್ಪಕವಾಗಿದೆ",
+        "m_opt": "ತೇವಾಂಶ ಸರಿಯಾಗಿದೆ",
+        "m_adj": "ತೇವಾಂಶ ತಿದ್ದುಪಡಿ ಅಗತ್ಯವಿದೆ",
+        "o_good": "ಸಾವಯವ ಪದಾರ್ಥ ಒಳ್ಳೆಯದು",
+        "o_low": "ಸಾವಯವ ಪದಾರ್ಥ ಕಡಿಮೆ",
+        "fetching_weather": "ಹವಾಮಾನ ಮಾಹಿತಿಯನ್ನು ಪಡೆಯಲಾಗುತ್ತಿದೆ...",
+        "temp_rainfall_chart": "ತಾಪಮಾನ ಮತ್ತು ಮಳೆ",
+        "humidity_wind_chart": "ಆದ್ರತೆ ಮತ್ತು ಗಾಳಿಯ ವೇಗ",
+        "temperature": "ತಾಪಮಾನ (°C)",
+        "rainfall": "ಮಳೆ (ಮಿಮೀ)",
+        "humidity": "ಆದ್ರತೆ (%)",
+        "wind_speed": "ಗಾಳಿಯ ವೇಗ (ಕಿ.ಮೀ/ಗಂ)",
+        "from": "ಇಂದ",
+        "pressure": "ಒತ್ತಡ",
+        "visibility": "ದೃಶ್ಯಮಾನತೆ",
+        "condition": "ಹವಾಮಾನ ಸ್ಥಿತಿ",
+        "current_weather": "ಪ್ರಸ್ತುತ ಹವಾಮಾನ ಸ್ಥಿತಿ",
+        "weather_alerts": "🌾 ಕೃಷಿಗೆ ಸಂಬಂಧಿಸಿದ ಹವಾಮಾನ ಎಚ್ಚರಿಕೆಗಳು",
+        "high_temp_alert": "⚠️ ಹೆಚ್ಚು ತಾಪಮಾನ ಎಚ್ಚರಿಕೆ — ಮಧ್ಯಾಹ್ನ ಸಮಯದಲ್ಲಿ (10AM–4PM) ರಸಗೊಬ್ಬರ ನೀಡಬೇಡಿ.",
+        "low_temp_alert": "⚠️ ಕಡಿಮೆ ತಾಪಮಾನ ಎಚ್ಚರಿಕೆ — ತಾಪಮಾನ ಏರಿದ ನಂತರ ಮಾತ್ರ ರಸಗೊಬ್ಬರ ನೀಡಿ.",
+        "heavy_rain_alert": "⚠️ ಭಾರಿ ಮಳೆಯ ಎಚ್ಚರಿಕೆ — ರಸಗೊಬ್ಬರ ನೀಡುವುದನ್ನು ಮುಂದೂಡಿ, ನೀರಿನ ಹರಿವು ತಪ್ಪಿಸಿ.",
+        "dry_spell_alert": "⚠️ ಒಣಹವಾಮಾನ ಎಚ್ಚರಿಕೆ — ನೀರಾವರಿ ಪ್ರಮಾಣ ಹೆಚ್ಚಿಸಿ.",
+        "strong_wind_alert": "⚠️ ಬಲವಾದ ಗಾಳಿ ಎಚ್ಚರಿಕೆ — ಸಿಂಪಡಣೆ ಕಾರ್ಯವನ್ನು ಮುಂದೂಡಿ.",
+        "calm_wind_alert": "ℹ️ ನಿಶ್ಚಲ ಗಾಳಿ ಪರಿಸ್ಥಿತಿ — ಸಿಂಪಡಣೆ ಮತ್ತು ಎಲೆ ಸಿಂಪಡಣೆಗಾಗಿ ಉತ್ತಮ ಸಮಯ.",
+        "high_humidity_alert": "⚠️ ಹೆಚ್ಚು ಆದ್ರತೆ ಎಚ್ಚರಿಕೆ — ಹುಳ ರೋಗಗಳ ಅಪಾಯ ಹೆಚ್ಚಿದೆ.",
+        "low_humidity_alert": "⚠️ ಕಡಿಮೆ ಆದ್ರತೆ ಎಚ್ಚರಿಕೆ — ನೀರಾವರಿ ಹೆಚ್ಚಿಸಿ ಮತ್ತು ಷೇಡ್ ನೆಟ್ ಬಳಸಿ.",
+        "heat_stress_alert": "⚠️ ಉಷ್ಣ ಒತ್ತಡ ಎಚ್ಚರಿಕೆ — ನೀರಾವರಿ ಹೆಚ್ಚಿಸಿ ಮತ್ತು ಒಣಗುವಿಕೆಯನ್ನು ಗಮನಿಸಿ.",
+        "storm_alert": "⚠️ ಬಿರುಗಾಳಿ ಎಚ್ಚರಿಕೆ — ಉಪಕರಣಗಳನ್ನು ಸುರಕ್ಷಿತಪಡಿಸಿ ಮತ್ತು ಕಾರ್ಯವನ್ನು ಮುಂದೂಡಿ.",
+        "favorable_weather": "✅ ಕೃಷಿಗೆ ಹವಾಮಾನ ಅನುಕೂಲಕರವಾಗಿದೆ.",
+        "weather_fetch_error": "ಹವಾಮಾನ ಮಾಹಿತಿಯನ್ನು ಪಡೆಯಲು ವಿಫಲವಾಗಿದೆ. ದಯವಿಟ್ಟು ನಂತರ ಪ್ರಯತ್ನಿಸಿ.",
+        "get_weather_button": "🔄 ಹವಾಮಾನ ವರದಿ ಪಡೆಯಿರಿ",
+    }
+}
 
 st.set_page_config(page_title="🌏GreenGrow AI ", layout="wide")
+language = st.sidebar.selectbox(
+    "Choose Language / भाषा चुनें / ಭಾಷೆ ಆಯ್ಕೆಮಾಡಿ",
+    ("English", "Hindi", "Kannada")
+)
 
-st.title("✨GreenGrow AI - Smart Soil Analysis System")
-st.write("🚨Real-time soil analysis and fertilizer recommendations")
+
+st.title(texts[language]["title"])
+st.write(texts[language]["about"])
 
 # ---------------------- 🌐 IoT Data Integration ----------------------
 def get_iot_data():
@@ -398,14 +716,18 @@ st.sidebar.markdown(f"""
 - **Yield Potential**: {CROPS[selected_crop]['yield_potential']}
 """)
 
-tab1, tab2, tab3 = st.tabs(["Soil Analysis", "Weather Forecast", "Historical Data"])
+tab1, tab2, tab3 = st.tabs([
+    texts[language]["tab1"],
+    texts[language]["tab2"],
+    texts[language]["tab3"]
+])
 
 with tab1:
     readings = None  # ✅ ensure readings exists before use
     
     col1, col2 = st.columns(2)
     with col1:
-        st.subheader("📊 Enter the Soil Details")
+        st.subheader(texts[language]["enter_details"])
 
         # ----------- IoT Mode Integration ------------
         if input_mode == "IoT Sensor":
@@ -532,173 +854,147 @@ with tab1:
 
         # -------- Show Current Soil Parameters --------
         st.markdown(f"""
-        ### Current Soil Parameters:
-        - **pH Level**: {readings['pH']}
-        - **Nitrogen (N)**: {readings['nitrogen']} ppm
-        - **Phosphorus (P)**: {readings['phosphorus']} ppm
-        - **Potassium (K)**: {readings['potassium']} ppm
-        - **Moisture**: {readings['moisture']}%
-        - **Temperature**: {readings['temperature']}°C
-        - **Humidity**: {readings['humidity']}%
-        - **Organic Matter**: {readings['organic_matter']}%
-        - **EC**: {readings['ec']} dS/m
-        - **Soil Type**: {readings['soil_type']}
+            {texts[language]['current']}
+            - **pH Level**: {readings['pH']}
+            - **Nitrogen (N)**: {readings['nitrogen']} ppm
+            - **Phosphorus (P)**: {readings['phosphorus']} ppm
+            - **Potassium (K)**: {readings['potassium']} ppm
+            - **Moisture**: {readings['moisture']}%
+            - **Temperature**: {readings['temperature']}°C
+            - **Humidity**: {readings['humidity']}%
+            - **Organic Matter**: {readings['organic_matter']}%
+            - **EC**: {readings['ec']} dS/m
+            - **Soil Type**: {readings['soil_type']}
 
-        ### Micronutrients:
-        - **Zinc**: {readings['micronutrients']['zinc']} ppm
-        - **Iron**: {readings['micronutrients']['iron']} ppm
-        - **Manganese**: {readings['micronutrients']['manganese']} ppm
-        - **Copper**: {readings['micronutrients']['copper']} ppm
-        - **Boron**: {readings['micronutrients']['boron']} ppm
-        """)
+            {texts[language]['micro']}
+            - **Zinc**: {readings['micronutrients']['zinc']} ppm
+            - **Iron**: {readings['micronutrients']['iron']} ppm
+            - **Manganese**: {readings['micronutrients']['manganese']} ppm
+            - **Copper**: {readings['micronutrients']['copper']} ppm
+            - **Boron**: {readings['micronutrients']['boron']} ppm
+            """)
 
         # -------- Fertilizer Recommendation --------
         recommendations, fertilizer_details = calculate_fertilizer_requirements(readings, selected_crop)
 
         st.success(f"""
-        ### 🌱 Fertilizer Recommendations for {selected_crop}:
+            {texts[language]['fert_title']} {selected_crop}:
 
-        **Required Nutrients (kg/ha):**
-        - Nitrogen (N): {recommendations['N']:.1f}
-        - Phosphorus (P): {recommendations['P']:.1f}
-        - Potassium (K): {recommendations['K']:.1f}
+            **{texts[language]['req']}**
+            - Nitrogen (N): {recommendations['N']:.1f}
+            - Phosphorus (P): {recommendations['P']:.1f}
+            - Potassium (K): {recommendations['K']:.1f}
 
-        **Recommended Fertilizers:**
-        - **Urea**: {fertilizer_details['Nitrogen']['Urea']:.1f} kg/ha
-        - **DAP**: {fertilizer_details['Phosphorus']['DAP']:.1f} kg/ha
-        - **MOP**: {fertilizer_details['Potassium']['MOP']:.1f} kg/ha
-        """)
+            **{texts[language]['rec']}**
+            - Urea: {fertilizer_details['Nitrogen']['Urea']:.1f} kg/ha
+            - DAP: {fertilizer_details['Phosphorus']['DAP']:.1f} kg/ha
+            - MOP: {fertilizer_details['Potassium']['MOP']:.1f} kg/ha
+            """)
 
         # -------- Soil Health Status --------
         st.info(f"""
-        ### 🌍 Soil Health Status:
-        - pH is {'optimal' if CROPS[selected_crop]['pH'][0] <= readings['pH'] <= CROPS[selected_crop]['pH'][1] else 'needs adjustment'}
-        - Nitrogen level is {'sufficient' if readings['nitrogen'] >= CROPS[selected_crop]['N'] * 0.8 else 'low'}
-        - Phosphorus level is {'sufficient' if readings['phosphorus'] >= CROPS[selected_crop]['P'] * 0.8 else 'low'}
-        - Potassium level is {'sufficient' if readings['potassium'] >= CROPS[selected_crop]['K'] * 0.8 else 'low'}
-        - Moisture level is {'optimal' if 40 <= readings['moisture'] <= 60 else 'needs adjustment'}
-        - Organic matter is {'good' if readings['organic_matter'] >= 2.0 else 'low'}
-        """)
+            {texts[language]['health']}
+            - {texts[language]['ph_opt'] if CROPS[selected_crop]['pH'][0] <= readings['pH'] <= CROPS[selected_crop]['pH'][1] else texts[language]['ph_adj']}
+            - {texts[language]['n_suf'] if readings['nitrogen'] >= CROPS[selected_crop]['N'] * 0.8 else texts[language]['n_low']}
+            - {texts[language]['p_suf'] if readings['phosphorus'] >= CROPS[selected_crop]['P'] * 0.8 else texts[language]['p_low']}
+            - {texts[language]['k_suf'] if readings['potassium'] >= CROPS[selected_crop]['K'] * 0.8 else texts[language]['k_low']}
+            - {texts[language]['m_opt'] if 40 <= readings['moisture'] <= 60 else texts[language]['m_adj']}
+            - {texts[language]['o_good'] if readings['organic_matter'] >= 2.0 else texts[language]['o_low']}
+            """)
 
     with col2:
         st.subheader("📝 Farming Tips")
-        st.markdown("""
-        ### Best Practices:
-        1. **Soil Preparation**
-           - Test soil before planting
-           - Maintain proper pH levels
-           - Ensure good drainage
-           - Add organic matter if needed
-        
-        2. **Fertilizer Application**
-           - Follow recommended dosages
-           - Apply at right growth stages
-           - Use organic fertilizers when possible
-           - Consider split applications
-        
-        3. **Water Management**
-           - Monitor soil moisture
-           - Implement drip irrigation
-           - Avoid over-watering
-           - Consider weather forecasts
-        
-        4. **Sustainable Practices**
-           - Practice crop rotation
-           - Use cover crops
-           - Implement integrated pest management
-           - Maintain soil health
-        """)
+        st.markdown(tips[language])
 
 with tab2:
-    st.subheader("Weather Forecast")
+    st.subheader(f"{texts[language]['tab2']}")
 
     if not api_key:
         st.warning("⚠️ Please enter your OpenWeatherMap API key in the sidebar to view live weather data.")
         st.stop()
-
-    with st.spinner("Fetching live weather data..."):
-        forecast = get_weather_data(latitude, longitude, api_key)
-
-    if forecast:
-        df = pd.DataFrame(forecast)
-
-        # --- Weather Graphs ---
-        fig = make_subplots(rows=2, cols=1, subplot_titles=("Temperature & Rainfall", "Humidity & Wind Speed"))
-        fig.add_trace(go.Scatter(x=df["date"], y=df["temperature"], name="Temperature (°C)", line=dict(color="red")), row=1, col=1)
-        fig.add_trace(go.Bar(x=df["date"], y=df["rainfall"], name="Rainfall (mm)"), row=1, col=1)
-        fig.add_trace(go.Scatter(x=df["date"], y=df["humidity"], name="Humidity (%)", line=dict(color="blue")), row=2, col=1)
-        fig.add_trace(go.Scatter(x=df["date"], y=df["wind_speed"], name="Wind Speed (km/h)", line=dict(color="green")), row=2, col=1)
-        fig.update_layout(height=600, showlegend=True)
-        st.plotly_chart(fig, use_container_width=True)
-
-        # --- Data Table ---
-        st.dataframe(df)
-
-        # --- Current Weather Summary ---
-        current = df.iloc[0]
-        st.markdown(f"""
-        ### 🌡️ Current Weather Conditions:
-        - **Temperature**: {current['temperature']}°C  
-        - **Humidity**: {current['humidity']}%  
-        - **Wind**: {current['wind_speed']} km/h from {current['wind_direction']}  
-        - **Pressure**: {current['pressure']} hPa  
-        - **Visibility**: {current['visibility']} km  
-        - **Condition**: {current['description'].title()}
-        """)
-
-        st.subheader("🌾 Smart Farming Weather Alerts")
-
-        alerts_triggered = False
-
-        # 🌡️ Temperature Alerts
-        if current['temperature'] > 35:
-            st.warning("🔥 **High Temperature Alert** — Avoid midday fertilizer application, increase irrigation.")
-            alerts_triggered = True
-        elif current['temperature'] < 10:
-            st.warning("🥶 **Low Temperature Alert** — Protect crops, use mulch, and delay fertilization.")
-            alerts_triggered = True
-
-        # 🌧️ Rainfall Alerts
-        if current['rainfall'] > 10:
-            st.warning("🌧️ **Heavy Rainfall Alert** — Postpone fertilizer/pesticide application.")
-            alerts_triggered = True
-        elif current['rainfall'] == 0 and df['rainfall'].sum() < 5:
-            st.warning("☀️ **Dry Spell Alert** — Increase irrigation and apply mulch to retain soil moisture.")
-            alerts_triggered = True
-
-        # 🌬️ Wind Alerts
-        if current['wind_speed'] > 30:
-            st.warning("💨 **Strong Wind Alert** — Delay spraying and secure structures.")
-            alerts_triggered = True
-        elif current['wind_speed'] < 5:
-            st.info("🍃 **Calm Wind Conditions** — Ideal for foliar sprays and pesticide application.")
-            alerts_triggered = True
-
-        # 💧 Humidity Alerts
-        if current['humidity'] > 80:
-            st.warning("💦 **High Humidity Alert** — Watch for fungal diseases; improve ventilation.")
-            alerts_triggered = True
-        elif current['humidity'] < 40:
-            st.warning("🔥 **Low Humidity Alert** — Increase irrigation and use shade nets if possible.")
-            alerts_triggered = True
-
-        # ☀️ Heat Stress Alert
-        if current['temperature'] > 30 and current['humidity'] > 70:
-            st.warning("🌡️ **Heat Stress Alert** — Increase irrigation, provide shade, avoid afternoon activities.")
-            alerts_triggered = True
-
-        # 🌪️ Storm Alert
-        if current['rainfall'] > 5 and current['wind_speed'] > 20:
-            st.warning("🌪️ **Storm Alert** — Secure equipment, postpone fieldwork, prepare for crop protection.")
-            alerts_triggered = True
-
-        if not alerts_triggered:
-            st.success("✅ **Weather is favorable for farming operations.**")
     else:
-        st.error("❌ Unable to fetch weather data. Check API key, internet connection, or coordinates.")
+        if st.button(texts[language]['get_weather_button']):
+            with st.spinner("Fetching live weather data..."):
+                forecast = get_weather_data(latitude, longitude, api_key)
+
+            if forecast:
+                df = pd.DataFrame(forecast)
+
+                # --- Weather Graphs ---
+                fig = make_subplots(rows=2, cols=1, subplot_titles=("Temperature & Rainfall", "Humidity & Wind Speed"))
+                fig.add_trace(go.Scatter(x=df["date"], y=df["temperature"], name="Temperature (°C)", line=dict(color="red")), row=1, col=1)
+                fig.add_trace(go.Bar(x=df["date"], y=df["rainfall"], name="Rainfall (mm)"), row=1, col=1)
+                fig.add_trace(go.Scatter(x=df["date"], y=df["humidity"], name="Humidity (%)", line=dict(color="blue")), row=2, col=1)
+                fig.add_trace(go.Scatter(x=df["date"], y=df["wind_speed"], name="Wind Speed (km/h)", line=dict(color="green")), row=2, col=1)
+                fig.update_layout(height=600, showlegend=True)
+                st.plotly_chart(fig, use_container_width=True)
+
+                # --- Data Table ---
+                st.dataframe(df)
+
+                # --- Current Weather Summary ---
+                current_weather = df.iloc[0]
+                st.markdown(f"""
+                    ### {texts[language]['current_weather']}
+                    - **{texts[language]['temperature']}**: {current_weather['temperature']}°C  
+                    - **{texts[language]['humidity']}**: {current_weather['humidity']}%  
+                    - **{texts[language]['wind_speed']}**: {current_weather['wind_speed']} km/h {texts[language]['from']} {current_weather['wind_direction']}  
+                    - **{texts[language]['pressure']}**: {current_weather['pressure']} hPa  
+                    - **{texts[language]['visibility']}**: {current_weather['visibility']} km  
+                    - **{texts[language]['condition']}**: {current_weather['description'].title()}  
+                    """)
+
+                st.subheader(texts[language]['weather_alerts'])
+                alerts_triggered = False
+
+                # 🌡️ Temperature Alerts
+                if current_weather['temperature'] > 35:
+                    alerts_triggered = True
+                    st.warning(texts[language]['high_temp_alert'])
+                elif current_weather['temperature'] < 10:
+                    alerts_triggered = True
+                    st.warning(texts[language]['low_temp_alert'])
+
+                    # 🌧️ Rainfall Alerts
+                if current_weather['rainfall'] > 10:
+                    alerts_triggered = True
+                    st.warning(texts[language]['heavy_rain_alert'])
+                elif current_weather['rainfall'] == 0 and df['rainfall'].sum() < 5:
+                    alerts_triggered = True
+                    st.warning(texts[language]['dry_spell_alert'])
+
+                    # 🌬️ Wind Alerts
+                if current_weather['wind_speed'] > 30:
+                    alerts_triggered = True
+                    st.warning(texts[language]['strong_wind_alert'])
+                elif current_weather['wind_speed'] < 5:
+                    alerts_triggered = True
+                    st.info(texts[language]['calm_wind_alert'])
+
+                    # 💧 Humidity Alerts
+                if current_weather['humidity'] > 80:
+                    alerts_triggered = True
+                    st.warning(texts[language]['high_humidity_alert'])
+                elif current_weather['humidity'] < 40:
+                    alerts_triggered = True
+                    st.warning(texts[language]['low_humidity_alert'])
+
+                    # ☀️ Heat Stress
+                if current_weather['temperature'] > 30 and current_weather['humidity'] > 70:
+                    alerts_triggered = True
+                    st.warning(texts[language]['heat_stress_alert'])
+
+                    # 🌩️ Storm Alert
+                if current_weather['rainfall'] > 5 and current_weather['wind_speed'] > 20:
+                    alerts_triggered = True
+                    st.warning(texts[language]['storm_alert'])
+                if not alerts_triggered:
+                    st.success("✅ **Weather is favorable for farming operations.**")
+            else:
+                st.error("❌ Unable to fetch weather data. Check API key, internet connection, or coordinates.")
 
 with tab3:
-    st.subheader("📈 Historical Data Analysis")
+    st.subheader(f"{texts[language]['tab3']}")
     
    
     historical_data = generate_historical_data(selected_crop)
@@ -729,23 +1025,23 @@ with tab3:
     fig_history.update_layout(height=800, showlegend=True)
     st.plotly_chart(fig_history, use_container_width=True)
   
+    st.markdown(texts[language]["title1"])
     st.markdown("""
-    ### Historical Statistics
-    - Average Yield: {:.2f} tons/ha
-    - Average Rainfall: {:.2f} mm
-    - Average Temperature: {:.2f}°C
-    - Average Fertilizer Usage: {:.2f} kg/ha
-    - Average Soil Moisture: {:.2f}%
-    - Average Soil pH: {:.2f}
-    - Average Market Price: ₹{:.2f}/ton
-    - Average Labor Cost: ₹{:.2f}/ha
+    - {}: {:.2f} tons/ha  
+    - {}: {:.2f} mm  
+    - {}: {:.2f}°C  
+    - {}: {:.2f} kg/ha  
+    - {}: {:.2f}%  
+    - {}: {:.2f}  
+    - {}: ₹{:.2f}/ton  
+    - {}: ₹{:.2f}/ha
     """.format(
-        historical_data['Yield'].mean(),
-        historical_data['Rainfall'].mean(),
-        historical_data['Temperature'].mean(),
-        historical_data['Fertilizer_Used'].mean(),
-        historical_data['Soil_Moisture'].mean(),
-        historical_data['Soil_pH'].mean(),
-        historical_data['Market_Price'].mean(),
-        historical_data['Labor_Cost'].mean()
+        texts[language]["yield"], historical_data['Yield'].mean(),
+        texts[language]["rainfall"], historical_data['Rainfall'].mean(),
+        texts[language]["temperature"], historical_data['Temperature'].mean(),
+        texts[language]["fertilizer"], historical_data['Fertilizer_Used'].mean(),
+        texts[language]["moisture"], historical_data['Soil_Moisture'].mean(),
+        texts[language]["ph"], historical_data['Soil_pH'].mean(),
+        texts[language]["price"], historical_data['Market_Price'].mean(),
+        texts[language]["labor"], historical_data['Labor_Cost'].mean()
     ))
