@@ -172,6 +172,8 @@ texts = {
         "storm_alert": "⚠️ Storm Alert — Secure farm equipment and postpone operations.",
         "favorable_weather": "✅ Weather is favorable for farming.",
         "weather_fetch_error": "Failed to fetch weather data. Please try again later.",
+        "tab4": "Farmer Benefits",
+
     },
     "Hindi": {
         "title": "🌱 ग्रीनग्रो AI - स्मार्ट मिट्टी विश्लेषण प्रणाली",
@@ -248,6 +250,8 @@ texts = {
         "favorable_weather": "✅ खेती के लिए मौसम अनुकूल है।",
         "weather_fetch_error": "मौसम डेटा प्राप्त करने में विफल। कृपया बाद में पुनः प्रयास करें।",
         "get_weather_button": "🔄 मौसम रिपोर्ट प्राप्त करें",
+        "tab4": "किसान लाभ",
+
     },
     "Kannada": {
         "title": "🌱 ಗ್ರೀನ್‌ಗ್ರೋ AI - ಸ್ಮಾರ್ಟ್ ಮಣ್ಣಿನ ವಿಶ್ಲೇಷಣಾ ವ್ಯವಸ್ಥೆ",
@@ -325,6 +329,232 @@ texts = {
         "favorable_weather": "✅ ಕೃಷಿಗೆ ಹವಾಮಾನ ಅನುಕೂಲಕರವಾಗಿದೆ.",
         "weather_fetch_error": "ಹವಾಮಾನ ಮಾಹಿತಿಯನ್ನು ಪಡೆಯಲು ವಿಫಲವಾಗಿದೆ. ದಯವಿಟ್ಟು ನಂತರ ಪ್ರಯತ್ನಿಸಿ.",
         "get_weather_button": "🔄 ಹವಾಮಾನ ವರದಿ ಪಡೆಯಿರಿ",
+        "tab4": "ರೈತರಿಗೆ ಲಾಭಗಳು",
+    }
+}
+st.markdown("""
+<style>
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+
+/* ======================================================
+   GLOBAL STYLING
+====================================================== */
+html, body, [class*="css"]  {
+    font-family: 'Poppins', sans-serif !important;
+}
+
+/* Smooth App Background */
+.stApp {
+    background: linear-gradient(145deg, #c8ffd4, #eaffea, #ffffff);
+    background-size: 300% 300%;
+    animation: gradientShift 8s ease infinite;
+}
+
+@keyframes gradientShift {
+    0% { background-position: 0% 0%; }
+    50% { background-position: 100% 100%; }
+    100% { background-position: 0% 0%; }
+}
+
+/* ======================================================
+   GLASSMORPHIC CARD
+====================================================== */
+.card {
+    padding: 25px;
+    border-radius: 20px;
+    background: rgba(255,255,255,0.35);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.20);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.3);
+    margin-bottom: 20px;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.card:hover {
+    transform: scale(1.02);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
+}
+
+/* ======================================================
+   HEADER
+====================================================== */
+h1 {
+    color: #006b3c;
+    font-size: 42px !important;
+    font-weight: 700;
+    text-shadow: 2px 2px 10px rgba(0,255,100,0.25);
+    margin-bottom: 5px;
+}
+
+.green-tagline {
+    text-align:center;
+    font-size:18px;
+    color:#055d2e;
+    text-shadow: 0px 0px 8px rgba(0,255,80,0.2);
+    font-weight:500;
+}
+
+/* ======================================================
+   PREMIUM TABS
+====================================================== */
+.stTabs [data-baseweb="tab"] {
+    font-size: 19px !important;
+    padding: 10px 20px;
+    border-radius: 12px !important;
+    background: rgba(255,255,255,0.4);
+    backdrop-filter: blur(8px);
+    margin-right: 8px;
+}
+
+.stTabs [data-baseweb="tab"]:hover {
+    background: rgba(255,255,255,0.6);
+}
+
+/* Active tab glow */
+.stTabs [aria-selected="true"] {
+    background: #00c853 !important;
+    color: white !important;
+    box-shadow: 0px 0px 12px #00ff73aa;
+}
+
+/* ======================================================
+   SIDEBAR
+====================================================== */
+[data-testid="stSidebar"] {
+    background: rgba(255,255,255,0.5);
+    backdrop-filter: blur(12px);
+    border-right: 2px solid rgba(255,255,255,0.4);
+}
+
+/* Sidebar headers */
+[data-testid="stSidebar"] h2, [data-testid="stSidebar"] h3 {
+    color: #006b3c !important;
+}
+
+/* ======================================================
+   BUTTONS
+====================================================== */
+.stButton>button {
+    border-radius: 14px;
+    background: linear-gradient(135deg, #00c853, #009624);
+    color: white;
+    padding: 10px 20px;
+    font-size: 18px;
+    border: none;
+    box-shadow: 0px 4px 20px rgba(0,255,50,0.3);
+}
+
+.stButton>button:hover {
+    background: linear-gradient(135deg, #00e676, #00c853);
+    box-shadow: 0px 6px 28px rgba(0,255,80,0.5);
+}
+
+/* ======================================================
+   DATAFRAME
+====================================================== */
+[data-testid="stDataFrame"] {
+    border-radius: 18px !important;
+    overflow: hidden !important;
+    box-shadow: 0px 6px 30px rgba(0,0,0,0.2);
+}
+
+/* ======================================================
+   SECTION TITLES
+====================================================== */
+.section-title {
+    font-size: 28px;
+    font-weight: 700;
+    background: linear-gradient(90deg, #00c853, #007f3b);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* ======================================================
+   FLOATING GLOW EFFECT (OPTIONAL)
+====================================================== */
+.glow {
+    animation: glowPulse 2s ease-in-out infinite;
+}
+
+@keyframes glowPulse {
+    0% { text-shadow: 0px 0px 6px rgba(0,255,80,0.3); }
+    50% { text-shadow: 0px 0px 14px rgba(0,255,80,0.7); }
+    100% { text-shadow: 0px 0px 6px rgba(0,255,80,0.3); }
+}
+
+</style>
+""", unsafe_allow_html=True)
+
+
+farmer_benefits = {
+    "English": {
+        "title": "🌾 Benefits for Farmers",
+        "header": "### ✅ Why This System Helps Farmers",
+        "points": [
+            "Accurate fertilizer recommendations — reduced wastage and improved yield.",
+            "Weather-aware guidance — avoids fertilizer loss during unexpected rains.",
+            "Smart decisions based on soil nutrients (N, P, K) and crop type.",
+            "Cost savings — prevents unnecessary fertilizer use.",
+            "Increased productivity — balanced nutrients lead to healthier crops.",
+            "Environmental protection — reduces soil and water pollution.",
+            "Easy to use — simple interface for all farmers.",
+            "Supports multiple languages — English, Hindi, and Kannada for farmer convenience."
+        ],
+        "summary_title": "### 📊 Benefits (Summary)",
+        "summary": [
+            "25–40% reduction in fertilizer wastage.",
+            "10–20% increase in crop yield.",
+            "Better soil health.",
+            "Improved long-term sustainability."
+        ],
+        "footer": "This system empowers farmers to make smart, data-driven agricultural decisions!"
+    },
+
+    "Hindi": {
+        "title": "🌾 किसानों के लिए लाभ",
+        "header": "### ✅ यह प्रणाली किसानों की कैसे मदद करती है?",
+        "points": [
+            "सटीक उर्वरक सिफारिशें — बर्बादी कम, उत्पादन अधिक।",
+            "मौसम आधारित सलाह — अप्रत्याशित बारिश में उर्वरक का नुकसान नहीं।",
+            "मिट्टी (N, P, K) और फसल के आधार पर स्मार्ट निर्णय।",
+            "लागत में बचत — अनावश्यक उर्वरक उपयोग से बचाव।",
+            "उत्पादन में वृद्धि — संतुलित पोषण से स्वस्थ फसल।",
+            "पर्यावरण की सुरक्षा — मिट्टी और जल प्रदूषण में कमी।",
+            "उपयोग में आसान — सभी किसानों के लिए सरल इंटरफ़ेस।",
+            "बहुभाषी समर्थन — अंग्रेजी, हिंदी और कन्नड़ में उपलब्ध।"
+        ],
+        "summary_title": "### 📊 लाभ (सारांश)",
+        "summary": [
+            "25–40% उर्वरक की बर्बादी में कमी।",
+            "10–20% उत्पादन में वृद्धि।",
+            "बेहतर मिट्टी स्वास्थ्य।",
+            "लंबे समय तक टिकाऊ खेती।"
+        ],
+        "footer": "यह प्रणाली किसानों को डेटा आधारित, समझदारी भरे कृषि निर्णय लेने में सक्षम बनाती है!"
+    },
+
+    "Kannada": {
+        "title": "🌾 ರೈತರಿಗೆ ಲಾಭಗಳು",
+        "header": "### ✅ ಈ ವ್ಯವಸ್ಥೆ ರೈತರಿಗೆ ಹೇಗೆ ಸಹಾಯ ಮಾಡುತ್ತದೆ?",
+        "points": [
+            "ನಿಖರ ರಸಗೊಬ್ಬರ ಶಿಫಾರಸು — ವ್ಯರ್ಥ ಕಡಿಮೆ, ಉತ್ಪಾದನೆ ಹೆಚ್ಚು.",
+            "ಹವಾಮಾನ ಆಧಾರಿತ ಸಲಹೆ — ಅನಿರೀಕ್ಷಿತ ಮಳೆಯಿಂದ ನಷ್ಟ ತಪ್ಪಿಸಬಹುದು.",
+            "ಮಣ್ಣಿನ (N, P, K) ಮತ್ತು ಬೆಳೆಯ ಆಧಾರದ ಮೇಲೆ ಬುದ್ಧಿವಂತ ನಿರ್ಧಾರ.",
+            "ವೆಚ್ಚದಲ್ಲಿ ಉಳಿತಾಯ — ಅನಗತ್ಯ ರಸಗೊಬ್ಬರ ಬಳಕೆ ತಪ್ಪುತ್ತದೆ.",
+            "ಉತ್ಪಾದನೆ ಹೆಚ್ಚಳ — ಸಮತೋಲನ ಪೋಷಕಾಂಶಗಳಿಂದ ಆರೋಗ್ಯಕರ ಬೆಳೆ.",
+            "ಪರಿಸರ ರಕ್ಷಣೆ — ಮಣ್ಣು ಮತ್ತು ನೀರಿನ ಮಾಲಿನ್ಯ ಕಡಿಮೆ.",
+            "ಬಳಕೆ ಸುಲಭ — ಎಲ್ಲ ರೈತರಿಗೆ ಅನುಕೂಲಕರ.",
+            "ಬಹುಭಾಷಾ ಬೆಂಬಲ — ಇಂಗ್ಲಿಷ್, ಹಿಂದಿ ಮತ್ತು ಕನ್ನಡದಲ್ಲಿ ಲಭ್ಯ."
+        ],
+        "summary_title": "### 📊 ಲಾಭಗಳು (ಸಾರಾಂಶ)",
+        "summary": [
+            "25–40% ರಸಗೊಬ್ಬರ ವ್ಯರ್ಥ ಕಡಿತ.",
+            "10–20% ಉತ್ಪಾದನೆ ಹೆಚ್ಚಳ.",
+            "ಉತ್ತಮ ಮಣ್ಣು ಆರೋಗ್ಯ.",
+            "ದೀರ್ಘಾವಧಿಯ ಸುಸ್ಥಿರ ಕೃಷಿ."
+        ],
+        "footer": "ಈ ವ್ಯವಸ್ಥೆ ರೈತರಿಗೆ ಡೇಟಾ ಆಧಾರಿತ ಬುದ್ಧಿವಂತ ಕೃಷಿ ನಿರ್ಧಾರಗಳನ್ನು ತೆಗೆದುಕೊಳ್ಳಲು ಸಹಾಯ ಮಾಡುತ್ತದೆ!"
     }
 }
 
@@ -335,8 +565,15 @@ language = st.sidebar.selectbox(
 )
 
 
-st.title(texts[language]["title"])
-st.write(texts[language]["about"])
+st.markdown("""
+<div style="text-align:center; padding:8px 0; margin-bottom:10px;">
+    <h1>🌏 GreenGrow AI — Smart Farming Assistant</h1>
+    <p style="font-size:18px; color:#2e7d32;">
+        AI-powered Soil Analysis • Weather Forecast • Fertilizer Guidance • Multi-language Support
+    </p>
+</div>
+""", unsafe_allow_html=True)
+
 
 # ---------------------- 🌐 IoT Data Integration ----------------------
 def get_iot_data():
@@ -716,10 +953,11 @@ st.sidebar.markdown(f"""
 - **Yield Potential**: {CROPS[selected_crop]['yield_potential']}
 """)
 
-tab1, tab2, tab3 = st.tabs([
+tab1, tab2, tab3 , tab4 = st.tabs([
     texts[language]["tab1"],
     texts[language]["tab2"],
-    texts[language]["tab3"]
+    texts[language]["tab3"],
+    texts[language]["tab4"]
 ])
 
 with tab1:
@@ -821,36 +1059,61 @@ with tab1:
         st.warning("⚠️ No soil data available yet.")
     else:
 
-        fig_soil = make_subplots(rows=2, cols=3,
-                                specs=[[{'type': 'indicator'}, {'type': 'indicator'}, {'type': 'indicator'}],
-                                    [{'type': 'indicator'}, {'type': 'indicator'}, {'type': 'indicator'}]])
+        # --- PREMIUM GREENGLASS GAUGE FUNCTION ---
+        def fancy_gauge(value, title, min_val, max_val, color):
+            return go.Indicator(
+                mode="gauge+number",
+                value=value,
+                title={'text': f"<b>{title}</b>", 'font': {'size': 20, 'color': '#004d25'}},
+                number={'font': {'size': 34, 'color': color}},
+                gauge={
+                    'axis': {
+                        'range': [min_val, max_val],
+                        'tickwidth': 1.2,
+                        'tickcolor': "#5c5c5c"
+                    },
+                    'bar': {
+                        'color': color,
+                        'thickness': 0.3
+                    },
+                    'bgcolor': "rgba(255,255,255,0.4)",
+                    'borderwidth': 2,
+                    'bordercolor': color,
+                    'steps': [
+                        {'range': [min_val, (min_val + max_val)/2], 'color': 'rgba(0,0,0,0.05)'},
+                        {'range': [(min_val + max_val)/2, max_val], 'color': 'rgba(0,0,0,0.10)'}
+                    ],
+                    'threshold': {
+                        'line': {'color': color, 'width': 5},
+                        'thickness': 0.8,
+                        'value': value
+                    }
+                }
+            )
 
-        fig_soil.add_trace(go.Indicator(mode="gauge+number", value=readings['pH'],
-                        title={'text': "pH Level"},
-                        gauge={'axis': {'range': [5, 8]}, 'bar': {'color': "darkblue"}}), row=1, col=1)
 
-        fig_soil.add_trace(go.Indicator(mode="gauge+number", value=readings['moisture'],
-                        title={'text': "Moisture %"},
-                        gauge={'axis': {'range': [0, 100]}, 'bar': {'color': "green"}}), row=1, col=2)
+        # --- APPLY TO ALL GAUGES ---
+        fig_soil = make_subplots(
+            rows=2, cols=3,
+            specs=[[{'type': 'indicator'}, {'type': 'indicator'}, {'type': 'indicator'}],
+                [{'type': 'indicator'}, {'type': 'indicator'}, {'type': 'indicator'}]]
+        )
 
-        fig_soil.add_trace(go.Indicator(mode="gauge+number", value=readings['organic_matter'],
-                        title={'text': "Organic Matter %"},
-                        gauge={'axis': {'range': [0, 5]}, 'bar': {'color': "brown"}}), row=1, col=3)
+        fig_soil.add_trace(fancy_gauge(readings['pH'], "pH Level", 5, 8, "#00c853"), row=1, col=1)
+        fig_soil.add_trace(fancy_gauge(readings['moisture'], "Moisture %", 0, 100, "#2e7d32"), row=1, col=2)
+        fig_soil.add_trace(fancy_gauge(readings['organic_matter'], "Organic Matter %", 0, 5, "#b71c1c"), row=1, col=3)
 
-        fig_soil.add_trace(go.Indicator(mode="gauge+number", value=readings['nitrogen'],
-                        title={'text': "Nitrogen (ppm)"},
-                        gauge={'axis': {'range': [0, 100]}, 'bar': {'color': "blue"}}), row=2, col=1)
+        fig_soil.add_trace(fancy_gauge(readings['nitrogen'], "Nitrogen (ppm)", 0, 100, "#2962ff"), row=2, col=1)
+        fig_soil.add_trace(fancy_gauge(readings['phosphorus'], "Phosphorus (ppm)", 0, 100, "#aa00ff"), row=2, col=2)
+        fig_soil.add_trace(fancy_gauge(readings['potassium'], "Potassium (ppm)", 0, 100, "#ff9100"), row=2, col=3)
 
-        fig_soil.add_trace(go.Indicator(mode="gauge+number", value=readings['phosphorus'],
-                        title={'text': "Phosphorus (ppm)"},
-                        gauge={'axis': {'range': [0, 100]}, 'bar': {'color': "purple"}}), row=2, col=2)
-
-        fig_soil.add_trace(go.Indicator(mode="gauge+number", value=readings['potassium'],
-                        title={'text': "Potassium (ppm)"},
-                        gauge={'axis': {'range': [0, 100]}, 'bar': {'color': "orange"}}), row=2, col=3)
-
-        fig_soil.update_layout(height=400, showlegend=False)
+        fig_soil.update_layout(
+            height=430,
+            showlegend=False,
+            margin=dict(l=20, r=20, t=20, b=20),
+        )
         st.plotly_chart(fig_soil, use_container_width=True)
+
 
         # -------- Show Current Soil Parameters --------
         st.markdown(f"""
@@ -921,12 +1184,107 @@ with tab2:
                 df = pd.DataFrame(forecast)
 
                 # --- Weather Graphs ---
-                fig = make_subplots(rows=2, cols=1, subplot_titles=("Temperature & Rainfall", "Humidity & Wind Speed"))
-                fig.add_trace(go.Scatter(x=df["date"], y=df["temperature"], name="Temperature (°C)", line=dict(color="red")), row=1, col=1)
-                fig.add_trace(go.Bar(x=df["date"], y=df["rainfall"], name="Rainfall (mm)"), row=1, col=1)
-                fig.add_trace(go.Scatter(x=df["date"], y=df["humidity"], name="Humidity (%)", line=dict(color="blue")), row=2, col=1)
-                fig.add_trace(go.Scatter(x=df["date"], y=df["wind_speed"], name="Wind Speed (km/h)", line=dict(color="green")), row=2, col=1)
-                fig.update_layout(height=600, showlegend=True)
+                fig = make_subplots(
+                    rows=2,
+                    cols=1,
+                    shared_xaxes=True,
+                    subplot_titles=(
+                        "<b>🌡️ Temperature & 🌧️ Rainfall</b>",
+                        "<b>💧 Humidity & 🍃 Wind Speed</b>"
+                    )
+                )
+
+                # --- TEMP LINE (Gradient Glow Style) ---
+                fig.add_trace(
+                    go.Scatter(
+                        x=df["date"], 
+                        y=df["temperature"], 
+                        name="Temperature (°C)",
+                        line=dict(
+                            color="#ff1744",
+                            width=4
+                        ),
+                        hovertemplate="Temperature: %{y}°C<br>%{x}"
+                    ),
+                    row=1, col=1
+                )
+
+                # --- RAINFALL BAR (Glass Style) ---
+                fig.add_trace(
+                    go.Bar(
+                        x=df["date"], 
+                        y=df["rainfall"],
+                        name="Rainfall (mm)",
+                        marker=dict(
+                            color="rgba(0, 150, 255, 0.5)",
+                            line=dict(color="#0091ea", width=1.5)
+                        ),
+                        hovertemplate="Rainfall: %{y}mm<br>%{x}"
+                    ),
+                    row=1, col=1
+                )
+
+                # --- HUMIDITY LINE ---
+                fig.add_trace(
+                    go.Scatter(
+                        x=df["date"], 
+                        y=df["humidity"], 
+                        name="Humidity (%)",
+                        line=dict(
+                            color="#2962ff",
+                            width=4
+                        ),
+                        hovertemplate="Humidity: %{y}%<br>%{x}"
+                    ),
+                    row=2, col=1
+                )
+
+                # --- WIND SPEED LINE ---
+                fig.add_trace(
+                    go.Scatter(
+                        x=df["date"], 
+                        y=df["wind_speed"], 
+                        name="Wind Speed (km/h)",
+                        line=dict(
+                            color="#00c853",
+                            width=4
+                        ),
+                        hovertemplate="Wind: %{y} km/h<br>%{x}"
+                    ),
+                    row=2, col=1
+                )
+
+                # --- PREMIUM LAYOUT ---
+                fig.update_layout(
+                    height=650,
+                    plot_bgcolor="rgba(255,255,255,0.45)",
+                    paper_bgcolor="rgba(255,255,255,0)",
+                    margin=dict(l=20, r=20, t=50, b=20),
+                    legend=dict(
+                        orientation="h",
+                        yanchor="bottom",
+                        y=-0.25,
+                        xanchor="center",
+                        x=0.5,
+                        bgcolor="rgba(255,255,255,0.4)",
+                        bordercolor="rgba(0,0,0,0.1)",
+                        borderwidth=1,
+                        font=dict(size=13)
+                    ),
+                )
+
+                # --- Grid Lines (soft + rounded) ---
+                fig.update_xaxes(
+                    showgrid=True,
+                    gridwidth=0.4,
+                    gridcolor="rgba(0,0,0,0.1)",
+                    tickangle=45
+                )
+                fig.update_yaxes(
+                    showgrid=True,
+                    gridwidth=0.4,
+                    gridcolor="rgba(0,0,0,0.1)"
+                )
                 st.plotly_chart(fig, use_container_width=True)
 
                 # --- Data Table ---
@@ -999,32 +1357,157 @@ with tab3:
    
     historical_data = generate_historical_data(selected_crop)
     
-    fig_history = make_subplots(rows=2, cols=2,
-                               subplot_titles=("Yield Trend", "Climate Data",
-                                             "Soil Parameters", "Economic Indicators"))
-    
- 
-    fig_history.add_trace(go.Scatter(x=historical_data['Date'], y=historical_data['Yield'],
-                                    name='Yield', line=dict(color='green')), row=1, col=1)
-    
-    fig_history.add_trace(go.Scatter(x=historical_data['Date'], y=historical_data['Rainfall'],
-                                    name='Rainfall', line=dict(color='blue')), row=1, col=2)
-    fig_history.add_trace(go.Scatter(x=historical_data['Date'], y=historical_data['Temperature'],
-                                    name='Temperature', line=dict(color='red')), row=1, col=2)
-    
-    fig_history.add_trace(go.Scatter(x=historical_data['Date'], y=historical_data['Soil_Moisture'],
-                                    name='Soil Moisture', line=dict(color='brown')), row=2, col=1)
-    fig_history.add_trace(go.Scatter(x=historical_data['Date'], y=historical_data['Soil_pH'],
-                                    name='Soil pH', line=dict(color='purple')), row=2, col=1)
-    
-    fig_history.add_trace(go.Scatter(x=historical_data['Date'], y=historical_data['Market_Price'],
-                                    name='Market Price', line=dict(color='orange')), row=2, col=2)
-    fig_history.add_trace(go.Scatter(x=historical_data['Date'], y=historical_data['Labor_Cost'],
-                                    name='Labor Cost', line=dict(color='gray')), row=2, col=2)
-    
-    fig_history.update_layout(height=800, showlegend=True)
+    # --- PREMIUM GREENGLASS HISTORICAL CHARTS ---
+    # --- ULTRA PROFESSIONAL SMOOTH HISTORICAL CHARTS ---
+
+    def smooth_line(color):
+        return dict(
+            color=color,
+            width=5,
+            shape="spline",          # <-- MAGIC: makes line smooth
+            smoothing=1.3,           # <-- controls curve softness
+        )
+
+    fig_history = make_subplots(
+        rows=2, cols=2,
+        subplot_titles=(
+            "<b>📈 Yield Trend</b>",
+            "<b>🌧️🌡️ Climate Data</b>",
+            "<b>🌱 Soil Parameters</b>",
+            "<b>💰 Economic Indicators</b>"
+        )
+    )
+
+    # ------------------- YIELD TREND -------------------
+    fig_history.add_trace(
+        go.Scatter(
+            x=historical_data['Date'],
+            y=historical_data['Yield'],
+            name='Yield',
+            mode="lines+markers",
+            line=smooth_line("#00c853"),
+            marker=dict(size=8, color="#00c853"),
+            hovertemplate="Yield: %{y} tons<br>%{x}"
+        ),
+        row=1, col=1
+    )
+
+    # ------------------- CLIMATE DATA -------------------
+    fig_history.add_trace(
+        go.Scatter(
+            x=historical_data['Date'],
+            y=historical_data['Rainfall'],
+            name='Rainfall',
+            mode="lines+markers",
+            line=smooth_line("#2962ff"),
+            marker=dict(size=8, color="#2962ff"),
+            hovertemplate="Rainfall: %{y} mm<br>%{x}"
+        ),
+        row=1, col=2
+    )
+
+    fig_history.add_trace(
+        go.Scatter(
+            x=historical_data['Date'],
+            y=historical_data['Temperature'],
+            name='Temperature',
+            mode="lines+markers",
+            line=smooth_line("#ff1744"),
+            marker=dict(size=8, color="#ff1744"),
+            hovertemplate="Temp: %{y}°C<br>%{x}"
+        ),
+        row=1, col=2
+    )
+
+    # ------------------- SOIL PARAMETERS -------------------
+    fig_history.add_trace(
+        go.Scatter(
+            x=historical_data['Date'],
+            y=historical_data['Soil_Moisture'],
+            name='Soil Moisture',
+            mode="lines+markers",
+            line=smooth_line("#6d4c41"),
+            marker=dict(size=8, color="#6d4c41"),
+            hovertemplate="Moisture: %{y}%<br>%{x}"
+        ),
+        row=2, col=1
+    )
+
+    fig_history.add_trace(
+        go.Scatter(
+            x=historical_data['Date'],
+            y=historical_data['Soil_pH'],
+            name='Soil pH',
+            mode="lines+markers",
+            line=smooth_line("#aa00ff"),
+            marker=dict(size=8, color="#aa00ff"),
+            hovertemplate="pH: %{y}<br>%{x}"
+        ),
+        row=2, col=1
+    )
+
+    # ------------------- ECONOMIC INDICATORS -------------------
+    fig_history.add_trace(
+        go.Scatter(
+            x=historical_data['Date'],
+            y=historical_data['Market_Price'],
+            name='Market Price',
+            mode="lines+markers",
+            line=smooth_line("#ffab00"),
+            marker=dict(size=8, color="#ffab00"),
+            hovertemplate="Market Price: ₹%{y}<br>%{x}"
+        ),
+        row=2, col=2
+    )
+
+    fig_history.add_trace(
+        go.Scatter(
+            x=historical_data['Date'],
+            y=historical_data['Labor_Cost'],
+            name='Labor Cost',
+            mode="lines+markers",
+            line=smooth_line("#424242"),
+            marker=dict(size=8, color="#424242"),
+            hovertemplate="Labor Cost: ₹%{y}<br>%{x}"
+        ),
+        row=2, col=2
+    )
+
+    # ------------------- PREMIUM LAYOUT -------------------
+    fig_history.update_layout(
+        height=850,
+        plot_bgcolor="rgba(255,255,255,0.45)",
+        paper_bgcolor="rgba(255,255,255,0)",
+        margin=dict(l=20, r=20, t=50, b=20),
+        legend=dict(
+            orientation="h",
+            yanchor="bottom",
+            y=-0.22,
+            xanchor="center",
+            x=0.5,
+            bgcolor="rgba(255,255,255,0.5)",
+            bordercolor="rgba(0,0,0,0.15)",
+            borderwidth=1,
+        )
+    )
+
+    # --- SMOOTH GRID LINES ---
+    fig_history.update_xaxes(
+        showgrid=True,
+        gridwidth=0.4,
+        gridcolor="rgba(0,0,0,0.1)",
+        tickangle=45
+    )
+    fig_history.update_yaxes(
+        showgrid=True,
+        gridwidth=0.4,
+        gridcolor="rgba(0,0,0,0.1)"
+    )
+
     st.plotly_chart(fig_history, use_container_width=True)
-  
+
+
+    
     st.markdown(texts[language]["title1"])
     st.markdown("""
     - {}: {:.2f} tons/ha  
@@ -1045,3 +1528,20 @@ with tab3:
         texts[language]["price"], historical_data['Market_Price'].mean(),
         texts[language]["labor"], historical_data['Labor_Cost'].mean()
     ))
+
+with tab4:
+    data = farmer_benefits[language]
+
+    st.header(data["title"])
+    st.markdown(data["header"])
+
+    for point in data["points"]:
+        st.markdown(f"- {point}")
+
+    st.markdown("---")
+    st.markdown(data["summary_title"])
+
+    for item in data["summary"]:
+        st.markdown(f"- {item}")
+
+    st.success(data["footer"])
