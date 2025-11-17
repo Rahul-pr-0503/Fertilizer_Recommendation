@@ -99,7 +99,7 @@ tips = {
 texts = {
     "English": {
         "title": "🌱 GreenGrow AI - Smart Soil Analysis System",
-        "about": "Analyze soil parameters and recommend suitable crops and fertilizers.",
+        "about": "|AI-powered Soil Analysis • Weather Forecast • Fertilizer Guidance • Multi-language Support|",
         "upload": "Upload Soil Image",
         "analyze": "Analyze Soil",
         "results": "🧪 Analysis Results",
@@ -177,7 +177,7 @@ texts = {
     },
     "Hindi": {
         "title": "🌱 ग्रीनग्रो AI - स्मार्ट मिट्टी विश्लेषण प्रणाली",
-        "about": "मिट्टी के मापदंडों का विश्लेषण करें और उपयुक्त फसल और उर्वरक की सिफारिश करें।",
+        "about": "|एआई-संचालित मृदा विश्लेषण • मौसम पूर्वानुमान • उर्वरक मार्गदर्शन • बहुभाषी समर्थन|",
         "upload": "मिट्टी की छवि अपलोड करें",
         "analyze": "मिट्टी का विश्लेषण करें",
         "results": "🧪 विश्लेषण परिणाम",
@@ -255,7 +255,7 @@ texts = {
     },
     "Kannada": {
         "title": "🌱 ಗ್ರೀನ್‌ಗ್ರೋ AI - ಸ್ಮಾರ್ಟ್ ಮಣ್ಣಿನ ವಿಶ್ಲೇಷಣಾ ವ್ಯವಸ್ಥೆ",
-        "about": "ಮಣ್ಣಿನ ಪರಿಮಾಣಗಳನ್ನು ವಿಶ್ಲೇಷಿಸಿ ಸೂಕ್ತ ಬೆಳೆ ಮತ್ತು ರಸಗೊಬ್ಬರವನ್ನು ಶಿಫಾರಸು ಮಾಡಿ.",
+        "about": "|ಎಐ ಆಧಾರಿತ ಮಣ್ಣಿನ ವಿಶ್ಲೇಷಣೆ • ಹವಾಮಾನ ಮುನ್ಸೂಚನೆ • ರಸಗೊಬ್ಬರ ಮಾರ್ಗದರ್ಶನ • ಬಹುಭಾಷಾ ಬೆಂಬಲ|",
         "upload": "ಮಣ್ಣಿನ ಚಿತ್ರವನ್ನು ಅಪ್‌ಲೋಡ್ ಮಾಡಿ",
         "analyze": "ಮಣ್ಣನ್ನು ವಿಶ್ಲೇಷಿಸಿ",
         "results": "🧪 ವಿಶ್ಲೇಷಣಾ ಫಲಿತಾಂಶಗಳು",
@@ -565,12 +565,12 @@ language = st.sidebar.selectbox(
 )
 
 
-st.markdown("""
+selected = texts[language]
+
+st.markdown(f"""
 <div style="text-align:center; padding:8px 0; margin-bottom:10px;">
-    <h1>🌏 GreenGrow AI — Smart Farming Assistant</h1>
-    <p style="font-size:18px; color:#2e7d32;">
-        AI-powered Soil Analysis • Weather Forecast • Fertilizer Guidance • Multi-language Support
-    </p>
+    <h1>{selected['title']}</h1>
+    <p style="font-size:18px; color:#2e7d32;">{selected['about']}</p>
 </div>
 """, unsafe_allow_html=True)
 
