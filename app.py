@@ -598,49 +598,45 @@ def get_iot_data():
 # --------------------------------------------------------------------
 
 st.sidebar.title("🔑 API Configuration")
-api_key = st.sidebar.text_input("OpenWeatherMap API Key", type="password", 
-                               help="Get your free API key from https://openweathermap.org/api")
 
-if not api_key:
-    st.sidebar.warning("""
-    ⚠️ Please enter your OpenWeatherMap API key to access weather data.
-    
-    To get an API key:
-    1. Go to https://openweathermap.org/
-    2. Sign up for a free account
-    3. Verify your email address
-    4. Wait 2 hours for API key activation
-    5. Go to your account dashboard
-    6. Find your API key under "My API Keys"
-    """)
-    st.stop()
+api_key = st.sidebar.text_input(
+    "OpenWeatherMap API Key",
+    value="7459717f774319dc60fc0031557a8147",
+    type="password",
+    help="Get your free API key from https://openweathermap.org/api"
+)
 
 if st.sidebar.button("Test API Connection"):
     with st.sidebar:
         with st.spinner("Testing connection..."):
             try:
                 test_params = {
-                    "lat": 20.5937,  
+                    "lat": 20.5937,
                     "lon": 78.9629,
                     "appid": api_key,
                     "units": "metric"
                 }
+
                 response = requests.get(BASE_URL, params=test_params)
+
                 if response.status_code == 200:
                     st.success("✅ API connection successful!")
                 else:
                     data = response.json()
+
                     if response.status_code == 401:
-                        st.error("""
-                        ❌ Invalid API key. Please check:
-                        1. Did you copy the entire API key?
-                        2. Did you wait 2 hours after activation?
-                        3. Is your account email verified?
-                        """)
+                        st.error("❌ Invalid API key")
                     else:
                         st.error(f"❌ Error: {data.get('message', 'Unknown error')}")
+
             except Exception as e:
                 st.error(f"❌ Connection error: {str(e)}")
+st.sidebar.markdown("---")
+
+st.sidebar.link_button(
+    "⬇ Download Desktop App",
+    "https://github.com/Rahul-pr-0503/Fertilizer_Recommendation/releases/download/v1.0/GreenGrow.AI.Setup.1.0.0.zip"
+)
 
 def get_real_weather_data(latitude, longitude):
     try:
@@ -938,12 +934,7 @@ selected_crop = st.sidebar.selectbox("Select Crop Type", list(CROPS.keys()))
 st.sidebar.title("📍 Location")
 latitude = st.sidebar.number_input("Latitude", value=20.5937, format="%.4f")
 longitude = st.sidebar.number_input("Longitude", value=78.9629, format="%.4f")
-st.sidebar.markdown("---")
 
-st.sidebar.link_button(
-    "⬇ Download Desktop App",
-    "https://github.com/Rahul-pr-0503/Fertilizer_Recommendation/releases/download/v1.0/GreenGrow.AI.Setup.1.0.0.zip"
-)
 
 st.sidebar.markdown(f"""
 ### {selected_crop} Requirements:
@@ -957,6 +948,7 @@ st.sidebar.markdown(f"""
 - **Varieties**: {', '.join(CROPS[selected_crop]['varieties'])}
 - **Yield Potential**: {CROPS[selected_crop]['yield_potential']}
 """)
+
 
 tab1, tab2, tab3 , tab4 = st.tabs([
     texts[language]["tab1"],
