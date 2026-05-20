@@ -938,7 +938,12 @@ selected_crop = st.sidebar.selectbox("Select Crop Type", list(CROPS.keys()))
 st.sidebar.title("📍 Location")
 latitude = st.sidebar.number_input("Latitude", value=20.5937, format="%.4f")
 longitude = st.sidebar.number_input("Longitude", value=78.9629, format="%.4f")
+st.sidebar.markdown("---")
 
+st.sidebar.link_button(
+    "⬇ Download Desktop App",
+    "https://github.com/Rahul-pr-0503/Fertilizer_Recommendation/releases/download/v1.0/GreenGrow.AI.Setup.1.0.0.zip"
+)
 
 st.sidebar.markdown(f"""
 ### {selected_crop} Requirements:
