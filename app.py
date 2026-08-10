@@ -911,7 +911,7 @@ def calculate_fertilizer_requirements(soil_readings, crop_type):
 
 
 def generate_historical_data(crop_type):
-    dates = pd.date_range(end=datetime.now(), periods=12, freq='M')
+    dates = pd.date_range(end=datetime.now(), periods=12, freq='ME')
     data = {
         'Date': dates,
         'Yield': [random.uniform(2.0, 4.0) for _ in range(12)],
