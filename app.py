@@ -1,4 +1,5 @@
 import streamlit as st
+st.set_page_config(page_title="🌏GreenGrow AI ", layout="wide")
 import numpy as np
 import joblib
 import time
@@ -558,7 +559,7 @@ farmer_benefits = {
     }
 }
 
-st.set_page_config(page_title="🌏GreenGrow AI ", layout="wide")
+
 language = st.sidebar.selectbox(
     "Choose Language / भाषा चुनें / ಭಾಷೆ ಆಯ್ಕೆಮಾಡಿ",
     ("English", "Hindi", "Kannada")
